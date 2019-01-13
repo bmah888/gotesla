@@ -12,18 +12,18 @@ This code has some issues because as of this writing, the community
 version of InfluxDB is in flux, and it might be difficult to build the
 required InfluxDB golang client library.  I've found this to work:
 
-```% mkdir -p $GOPATH/github.com/influxdata
-% cd $GOPATH/github.com/influxdata
-% git clone https://github.com/influxdata/influxdb.git
-% git checkout 1.7
-% go get github.com/influxdata/influxdb/client/v2```
+    % mkdir -p $GOPATH/github.com/influxdata
+    % cd $GOPATH/github.com/influxdata
+    % git clone https://github.com/influxdata/influxdb.git
+    % git checkout 1.7
+    % go get github.com/influxdata/influxdb/client/v2
 
-Use the -token flag to specify a Tesla authentication token (can be
+Use the `-token` flag to specify a Tesla authentication token (can be
 created using the gettoken utility, or by any other means).
 
-Use the -influx-url, -influx-database, and -influx-measurement flags
+Use the `-influx-url`, `-influx-database`, and `-influx-measurement` flags
 to specify where to write the data.  The defaults are to write a
-measurement series named "chargers" in a database called "tesla" on a
+measurement series named `chargers` in a database called `tesla` on a
 local InfluxDB instance, with no authentication.  Note that
 authentication and encryption are not supported at this time (it would
 be fairly easy to add however).
