@@ -1,4 +1,5 @@
 scimport
+========
 
 Tesla Supercharger data import utility.  Periodically invokes the
 nearby-superchargers endpoint to retrieve Supercharger stall
@@ -9,7 +10,13 @@ Supercharger occupancy.
 
 This code has some issues because as of this writing, the community
 version of InfluxDB is in flux, and it might be difficult to build the
-required InfluxDB golang client library.
+required InfluxDB golang client library.  I've found this to work:
+
+```% mkdir -p $GOPATH/github.com/influxdata
+% cd $GOPATH/github.com/influxdata
+% git clone https://github.com/influxdata/influxdb.git
+% git checkout 1.7
+% go get github.com/influxdata/influxdb/client/v2```
 
 Use the -token flag to specify a Tesla authentication token (can be
 created using the gettoken utility, or by any other means).
