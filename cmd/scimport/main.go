@@ -48,15 +48,6 @@ func main() {
 	/* Make an HTTPS client */
 	client := &http.Client{Transport: tr}
 	
-	/* Get an authentication token */
-/*	t, err := GetToken(client, &Username, &Password)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
- 	fmt.Printf("Token: %v\n", t)
-*/
-	
 	/* Get vehicles list */
 	vr, err := gotesla.GetVehicles(client, BearerToken)
 	if err != nil {
