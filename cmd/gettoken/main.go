@@ -15,8 +15,6 @@ import (
 func main() {
 	var verbose bool = false
 
-	/* Seed random number generator, for semi-random polling interval */
-	
 	/* Command-line arguments */
 	var email = flag.String("email", "", "MyTesla email address")
 	var password = flag.String("password", "", "MyTesla account password")
