@@ -1,3 +1,17 @@
+//
+// Client API package for Tesla vehicles
+//
+// This package wraps some (but by no means all) of the various
+// API calls and data structures in the Tesla API.  Note that the
+// API is not officially documented or supported; what is publically
+// known has been reverse-engineered and collected at:
+//
+// https://www.teslaapi.io/
+//
+// No attempt is made to document the functionality of the different
+// API calls or data structures; for those details, please refer to the
+// above Web site.
+//
 package gotesla
 
 import (
