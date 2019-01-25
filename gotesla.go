@@ -1,4 +1,12 @@
 //
+// Copyright (C) 2019 Bruce A. Mah.
+// All rights reserved.
+//
+// Distributed under a BSD-style license, see the LICENSE file for
+// more information.
+//
+
+//
 // Client API package for Tesla vehicles
 //
 // This package wraps some (but by no means all) of the various

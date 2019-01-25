@@ -1,3 +1,11 @@
+//
+// Copyright (C) 2019 Bruce A. Mah.
+// All rights reserved.
+//
+// Distributed under a BSD-style license, see the LICENSE file for
+// more information.
+//
+
 package main
 
 import (
