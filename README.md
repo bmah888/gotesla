@@ -15,7 +15,9 @@ This repository contains a limited implementation of a
 with a couple of utilities that exercise the client library and API.
 It was created solely for the author's personal use on a specific
 project (the aforementioned utilities), and is being made available in
-the hopes that it is useful to others.
+the hopes that it is useful to others.  Please note that the author
+makes this code available on an "as-is" basis, and does not promise
+any support whatsoever.
 
 Crowd-sourced, reverse-engineered information on the Tesla API has
 been obtained from (https://www.teslaapi.io/) and related sources.
