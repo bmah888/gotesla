@@ -20,10 +20,10 @@ import (
 	influxClient "github.com/influxdata/influxdb/client/v2" // too many things called "client"
 )
 
-/* Command-line argument processing */
-
-/* Other stuff */
+// Authentication for Tesla API
 var BearerToken string
+
+// InfluxDB parameters
 var InfluxUrl string
 var InfluxDb string
 var InfluxMeasurement string
@@ -31,10 +31,10 @@ var InfluxMeasurement string
 func main() {
 	var verbose bool = false
 
-	/* Seed random number generator, for semi-random polling interval */
+	// Seed random number generator, for semi-random polling interval
 	rand.Seed(time.Now().UTC().UnixNano())
 	
-	/* Command-line arguments */
+	// Command-line arguments
 	flag.StringVar(&BearerToken, "token", "", "Tesla authentication token")
 	flag.StringVar(&InfluxUrl, "influx-url", "http://localhost:8086",
 		"Influx database server URL")
@@ -44,19 +44,19 @@ func main() {
 		"Influx measurement name")
 	flag.BoolVar(&verbose, "verbose", false, "Verbose output")
 
-	/* Parse command-line arguments */
+	// Parse command-line arguments
 	flag.Parse()
 	
-	/* Don't verify TLS certs... */
+	// Don't verify TLS certs...
 	tls := &tls.Config{InsecureSkipVerify: true}
 	
-	/* Get TLS transport */
+	// Get TLS transport
 	tr := &http.Transport{TLSClientConfig: tls}
 	
-	/* Make an HTTPS client */
+	// Make an HTTPS client
 	client := &http.Client{Transport: tr}
 	
-	/* Get vehicles list */
+	// Get vehicles list
 	vr, err := gotesla.GetVehicles(client, BearerToken)
 	if err != nil {
 		fmt.Println(err)
@@ -67,7 +67,7 @@ func main() {
 		fmt.Printf("%d vehicles retrieved\n", vr.Count);
 	}
 
-	/* Get a new HTTP client for InfluxDB */ 
+	// Get a new HTTP client for InfluxDB
 	dbClient, err := influxClient.NewHTTPClient(influxClient.HTTPConfig{
 		Addr: InfluxUrl,
 	})
@@ -95,7 +95,7 @@ func main() {
 				fmt.Printf("TimeStamp: %s\n", timeStamp.Format(time.RFC3339))
 			}
 
-			/* Make a batch of points */
+			// Make a batch of points
 			bp, err := influxClient.NewBatchPoints(influxClient.BatchPointsConfig{
 				Database: InfluxDb,
 				Precision: "us",
@@ -138,7 +138,7 @@ func main() {
 				}
 			}
 
-			/* Write the batch */
+			// Write the batch
 			err = dbClient.Write(bp)
 			if err != nil {
 				fmt.Println(err)

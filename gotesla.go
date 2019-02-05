@@ -31,7 +31,7 @@ import (
 	"strconv"
 )
 
-/* Other stuff */
+// Tesla API parameters
 var BaseUrl = "https://owner-api.teslamotors.com"
 var UserAgent = "org.kitchenlab.gotesla"
 var teslaClientId = "e4a9949fcfa04068f59abb5a658f2bac0a3428e4652315490b659d5ab3f35a9e"
@@ -68,13 +68,13 @@ func GetToken(client *http.Client, username *string, password *string) (Token, e
 	}
 	var t Token
 	
-	/* Figure out the correct endpoint */
+	// Figure out the correct endpoint
 	var url = BaseUrl + "/oauth/token"
 	if verbose {
 		fmt.Printf("Login URL: %s\n", url)
 	}
 	
-	/* Create JSON */
+	// Create JSON structure for authentication request
 	var auth Auth
 	auth.GrantType = "password"
 	auth.ClientId = teslaClientId
@@ -90,7 +90,7 @@ func GetToken(client *http.Client, username *string, password *string) (Token, e
 		fmt.Printf("Auth JSON: %s\n", authjson)
 	}
 
-	/* Set up POST */
+	// Set up POST
   	req, err := http.NewRequest("POST", url, bytes.NewReader(authjson))
 	if err != nil {
 		return t, err
@@ -111,12 +111,11 @@ func GetToken(client *http.Client, username *string, password *string) (Token, e
 	if err != nil {
 		return t, err
 	}
-	/* Print body, it's an array of bytes */
 	if verbose {
 		fmt.Printf("Resp JSON %s\n", body)
 	}
 
-	/* Parse response, get token */
+	// Parse response, get token structure
 	err = json.Unmarshal(body, &t)
 	if err != nil {
 		return t, nil
@@ -131,13 +130,13 @@ func GetToken(client *http.Client, username *string, password *string) (Token, e
 func GetTesla(client *http.Client, bearerToken string, endpoint string) ([]byte, error) {
 	var verbose bool = false
 	
-	/* Figure out the correct endpoint */
+	// Figure out the correct endpoint
 	var url = BaseUrl + endpoint
 	if verbose {
 		fmt.Printf("URL: %s\n", url)
 	}
 	
-	/* Set up GET */
+	// Set up GET
   	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
@@ -160,12 +159,11 @@ func GetTesla(client *http.Client, bearerToken string, endpoint string) ([]byte,
 	if err != nil {
 		return nil, err
 	}
-	/* Print body, it's an array of bytes */
 	if verbose {
 		fmt.Printf("Resp JSON %s\n", body)
 	}
 
-	/* Caller needs to parse this in the context of whatever schema it knows*/
+	// Caller needs to parse this in the context of whatever schema it knows
 	return body, nil
 	
 }

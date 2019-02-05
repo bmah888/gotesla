@@ -17,37 +17,35 @@ import (
 	"os"
 )
 
-/* Command-line argument processing */
-
 func main() {
 	var verbose bool = false
 
-	/* Command-line arguments */
+	// Command-line arguments
 	var email = flag.String("email", "", "MyTesla email address")
 	var password = flag.String("password", "", "MyTesla account password")
 	var jsonOutput = flag.Bool("json", false, "Print token JSON")
 	flag.BoolVar(&verbose, "verbose", false, "Verbose output")
 
-	/* Parse command-line arguments */
+	// Parse command-line arguments
 	flag.Parse()
 	
-	/* Don't verify TLS certs... */
+	// Don't verify TLS certs...
 	tls := &tls.Config{InsecureSkipVerify: true}
 	
-	/* Get TLS transport */
+	// Get TLS transport
 	tr := &http.Transport{TLSClientConfig: tls}
 	
-	/* Make an HTTPS client */
+	// Make an HTTPS client
 	client := &http.Client{Transport: tr}
 	
-	/* Get an authentication token */
+	// Get an authentication token
 	t, err := gotesla.GetToken(client, email, password)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	/* Output just the token, or the entire JSON structure as appropriate */
+	// Output just the token, or the entire JSON structure as appropriate
 	if *jsonOutput {
 		b, err := json.Marshal(t)
 		if err != nil {
