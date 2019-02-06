@@ -14,7 +14,7 @@
 // API is not officially documented or supported; what is publically
 // known has been reverse-engineered and collected at:
 //
-// https://www.teslaapi.io/
+// https://www.tesla-api.timdorr.com/
 //
 // No attempt is made to document the functionality of the different
 // API calls or data structures; for those details, please refer to the
