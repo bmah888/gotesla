@@ -20,9 +20,9 @@ makes this code available on an "as-is" basis, and does not promise
 any support whatsoever.
 
 Crowd-sourced, reverse-engineered information on the Tesla API has
-been obtained from (https://www.teslaapi.io/) and related sources.
-The author acknowledges and greatly appreciates the efforts of those
-who have contributed to this effort.
+been obtained from (https://www.tesla-api.timdorr.com/) and related
+sources.  The author acknowledges and greatly appreciates the efforts
+of those who have contributed to this effort.
 
 gettoken
 --------
