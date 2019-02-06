@@ -3,7 +3,8 @@ gotesla
 
 Tesla API client library and utilities written in golang.
 
-Tesla, Inc. has created an externally-accessible API for query and (to
+[Tesla, Inc.](https://www.tesla.com/)
+has created an externally-accessible API for query and (to
 a very limited extent) controlling their vehicles, such as the Model
 S, Model X, and Model 3.  This API is used by their mobile
 applications on iOS and Android.  It is totally undocumented and
@@ -34,8 +35,11 @@ and password.
 scimport
 --------
 
-Imports Supercharger stall utilization data to an InfluxDB timeseries
-database.
+Imports Supercharger stall utilization data to an
+[InfluxDB](https://www.influxdata.com/time-series-platform/influxdb/)
+timeseries database.  The intended use case is to be able to visualize
+Supercharger stall use over time in a system such as
+[Grafana](https://grafana.com/).
 
 Copyright
 ---------
