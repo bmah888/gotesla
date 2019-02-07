@@ -35,7 +35,6 @@ func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	
 	// Command-line arguments
-	flag.StringVar(&BearerToken, "token", "", "Tesla authentication token")
 	flag.StringVar(&InfluxUrl, "influx-url", "http://localhost:8086",
 		"Influx database server URL")
 	flag.StringVar(&InfluxDb, "influx-database", "tesla",
@@ -47,6 +46,14 @@ func main() {
 	// Parse command-line arguments
 	flag.Parse()
 	
+	// Get cached Tesla authentication token
+	token, err := gotesla.LoadCachedToken()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	var BearerToken = token.AccessToken
+
 	// Don't verify TLS certs...
 	tls := &tls.Config{InsecureSkipVerify: true}
 	
