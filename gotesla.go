@@ -28,7 +28,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strconv"
+	"time"
 )
 
 // Tesla API parameters
@@ -36,6 +38,11 @@ var BaseUrl = "https://owner-api.teslamotors.com"
 var UserAgent = "org.kitchenlab.gotesla"
 var teslaClientId = "e4a9949fcfa04068f59abb5a658f2bac0a3428e4652315490b659d5ab3f35a9e"
 var teslaClientSecret = "c75f14bbadc8bee3a7594412c31416f8300256d7668ea7e6e7f06727bfb9d220"
+
+// Place to cache token credentials
+// This is pretty UNIX-specific
+var TokenCachePath = os.Getenv("HOME") + "/.gotesla.cache"
+var TokenCachePathNewSuffix = ".new"
 
 //
 // Authentication
@@ -51,7 +58,7 @@ type Token struct {
 //
 // Authenticate with Tesla servers and get a bearer token.
 //
-func GetToken(client *http.Client, username *string, password *string) (Token, error) {
+func GetToken(client *http.Client, username *string, password *string) (*Token, error) {
 	var verbose bool = true
 	
 	// Auth is an authorization structure for the Tesla API.
@@ -84,7 +91,7 @@ func GetToken(client *http.Client, username *string, password *string) (Token, e
 	
 	authjson, err := json.Marshal(auth)
 	if err != nil {
-		return t, err
+		return &t, err
 	}
 	if verbose {
 		fmt.Printf("Auth JSON: %s\n", authjson)
@@ -93,7 +100,7 @@ func GetToken(client *http.Client, username *string, password *string) (Token, e
 	// Set up POST
   	req, err := http.NewRequest("POST", url, bytes.NewReader(authjson))
 	if err != nil {
-		return t, err
+		return &t, err
 	}
 	req.Header.Add("User-Agent", UserAgent)
 	req.Header.Add("Content-Type", "application/json")
@@ -104,12 +111,12 @@ func GetToken(client *http.Client, username *string, password *string) (Token, e
 
 	resp, err := client.Do(req) 
 	if err != nil {
-		return t, err
+		return &t, err
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return t, err
+		return &t, err
 	}
 	if verbose {
 		fmt.Printf("Resp JSON %s\n", body)
@@ -118,10 +125,93 @@ func GetToken(client *http.Client, username *string, password *string) (Token, e
 	// Parse response, get token structure
 	err = json.Unmarshal(body, &t)
 	if err != nil {
-		return t, nil
+		return &t, nil
 	}
 	
+	return &t, nil
+}
+
+//
+// Save token
+// Write the token to the new file and if that succeeds, move it
+// atomically into place
+//
+func SaveCachedToken(t *Token) error {
+
+	// Convert the token structure to JSON
+	tokenJSON, err := json.Marshal(t)
+	if err != nil {
+		return err
+	}
+	
+	// Write it to the file
+	err = ioutil.WriteFile(TokenCachePath + TokenCachePathNewSuffix, tokenJSON, 0600)
+	if err != nil {
+		return err
+	}
+	
+	// Move into place
+	err = os.Rename(TokenCachePath + TokenCachePathNewSuffix, TokenCachePath)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Get a bearer token and cache it in the local filesystem
+// This function is preferred over GetToken because it (in theory anyway)
+// should result in fewer authentication calls to Tesla's servers due to
+// caching.
+func GetAndCacheToken(client *http.Client, username *string, password *string) (*Token, error) {
+	t, err := GetToken(client, username, password)
+	if err != nil {
+		return t, err
+	}
+	err = SaveCachedToken(t)
+	if err != nil {
+		return t, err
+	}
+
 	return t, nil
+}
+
+// Load the token from the cache file
+func LoadCachedToken() (*Token, error) {
+	var t Token
+	
+	body, err := ioutil.ReadFile(TokenCachePath)
+	if err != nil {
+		return nil, err
+	}
+
+	// Parse response, get token structure
+	err = json.Unmarshal(body, &t)
+	if err != nil {
+		return nil, err
+	}
+	
+	return &t, nil
+}
+
+// Delete cached token
+func DeleteCachedToken() (error) {
+	err := os.Remove(TokenCachePath)
+	return err
+}
+
+// Return true if a token is valid
+func CheckToken(t *Token) (bool) {
+	start, end := TokenTimes(t)
+	now := time.Now()
+	return (start.Before(now) && now.Before(end))
+}
+
+// Retrieve start and end times for a token
+func TokenTimes(t *Token) (start, end time.Time) {
+	start = time.Unix(int64(t.CreatedAt), 0)
+	end = time.Unix(int64(t.CreatedAt) + int64(t.ExpiresIn), 0)
+	return
 }
 
 //

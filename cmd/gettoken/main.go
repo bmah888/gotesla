@@ -39,7 +39,7 @@ func main() {
 	client := &http.Client{Transport: tr}
 	
 	// Get an authentication token
-	t, err := gotesla.GetToken(client, email, password)
+	t, err := gotesla.GetAndCacheToken(client, email, password)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -47,7 +47,7 @@ func main() {
 
 	// Output just the token, or the entire JSON structure as appropriate
 	if *jsonOutput {
-		b, err := json.Marshal(t)
+		b, err := json.Marshal(*t)
 		if err != nil {
 			fmt.Println(err)
 		}
