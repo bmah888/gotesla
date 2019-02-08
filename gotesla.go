@@ -59,7 +59,7 @@ type Token struct {
 // Authenticate with Tesla servers and get a bearer token.
 //
 func GetToken(client *http.Client, username *string, password *string) (*Token, error) {
-	var verbose bool = true
+	var verbose bool = false
 	
 	// Auth is an authorization structure for the Tesla API.
 	// Field names need to begin with capital letters for the JSON
