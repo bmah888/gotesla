@@ -217,7 +217,7 @@ func TokenTimes(t *Token) (start, end time.Time) {
 //
 // General Tesla API request
 //
-func GetTesla(client *http.Client, bearerToken string, endpoint string) ([]byte, error) {
+func GetTesla(client *http.Client, token *Token, endpoint string) ([]byte, error) {
 	var verbose bool = false
 	
 	// Figure out the correct endpoint
@@ -234,7 +234,9 @@ func GetTesla(client *http.Client, bearerToken string, endpoint string) ([]byte,
 	req.Header.Add("User-Agent", UserAgent)
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept", "application/json")
-	req.Header.Add("Authorization", "Bearer " + bearerToken)
+	if token != nil {
+		req.Header.Add("Authorization", "Bearer " + token.AccessToken)
+	}
 
 	if verbose {
 		fmt.Printf("Headers: %s\n", req.Header)
@@ -287,11 +289,11 @@ type VehiclesResponse struct {
 	Count int `json:"count"`
 }
 
-func GetVehicles(client *http.Client, bearerToken string) (VehiclesResponse, error) {
+func GetVehicles(client *http.Client, token *Token) (VehiclesResponse, error) {
 	var verbose = false
 	var vr VehiclesResponse
 
-	vehiclejson, err := GetTesla(client, bearerToken, "/api/1/vehicles")
+	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles")
 	if err != nil {
 		return vr, err
 	}
@@ -341,11 +343,11 @@ type NearbyChargingSitesResponse struct {
 	}
 }
 
-func GetNearbyChargers(client *http.Client, bearerToken string, id int) (NearbyChargingSitesResponse, error) {
+func GetNearbyChargers(client *http.Client, token *Token, id int) (NearbyChargingSitesResponse, error) {
 	var verbose = false
 	var ncsr NearbyChargingSitesResponse
 
-	vehiclejson, err := GetTesla(client, bearerToken, "/api/1/vehicles/" + strconv.Itoa(id) + "/nearby_charging_sites")
+	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles/" + strconv.Itoa(id) + "/nearby_charging_sites")
 	if err != nil {
 		return ncsr, err
 	}
