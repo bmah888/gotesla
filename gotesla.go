@@ -75,12 +75,6 @@ func GetToken(client *http.Client, username *string, password *string) (*Token, 
 	}
 	var t Token
 	
-	// Figure out the correct endpoint
-	var url = BaseUrl + "/oauth/token"
-	if verbose {
-		fmt.Printf("Login URL: %s\n", url)
-	}
-	
 	// Create JSON structure for authentication request
 	var auth Auth
 	auth.GrantType = "password"
@@ -97,26 +91,10 @@ func GetToken(client *http.Client, username *string, password *string) (*Token, 
 		fmt.Printf("Auth JSON: %s\n", authjson)
 	}
 
-	// Set up POST
-  	req, err := http.NewRequest("POST", url, bytes.NewReader(authjson))
+	body, err := PostTesla(client, nil, "/oauth/token", authjson)
+	
 	if err != nil {
-		return &t, err
-	}
-	req.Header.Add("User-Agent", UserAgent)
-	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("Accept", "application/json")
-	if verbose {
-		fmt.Printf("Headers: %s\n", req.Header)
-	}
-
-	resp, err := client.Do(req) 
-	if err != nil {
-		return &t, err
-	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return &t, err
+		return nil, err
 	}
 	if verbose {
 		fmt.Printf("Resp JSON %s\n", body)
@@ -125,7 +103,7 @@ func GetToken(client *http.Client, username *string, password *string) (*Token, 
 	// Parse response, get token structure
 	err = json.Unmarshal(body, &t)
 	if err != nil {
-		return &t, nil
+		return nil, err
 	}
 	
 	return &t, nil
@@ -215,7 +193,7 @@ func TokenTimes(t *Token) (start, end time.Time) {
 }
 
 //
-// General Tesla API request
+// General Tesla API requests
 //
 func GetTesla(client *http.Client, token *Token, endpoint string) ([]byte, error) {
 	var verbose bool = false
@@ -258,6 +236,48 @@ func GetTesla(client *http.Client, token *Token, endpoint string) ([]byte, error
 	// Caller needs to parse this in the context of whatever schema it knows
 	return body, nil
 	
+}
+
+func PostTesla(client *http.Client, token *Token, endpoint string, payload []byte) ([]byte, error) {
+	var verbose bool = false
+
+	// Compute endpoint URL
+	var url = BaseUrl + endpoint
+	if verbose {
+		fmt.Printf("URL: %s\n", url)
+	}
+
+	// Set up POST
+  	req, err := http.NewRequest("POST", url, bytes.NewReader(payload))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("User-Agent", UserAgent)
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Accept", "application/json")
+	if token != nil {
+		req.Header.Add("Authorization", "Bearer " + token.AccessToken)
+	}
+
+	if verbose {
+		fmt.Printf("Headers: %s\n", req.Header)
+	}
+
+	resp, err := client.Do(req) 
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	if verbose {
+		fmt.Printf("Resp JSON %s\n", body)
+	}
+	
+	// Caller needs to parse this in the context of whatever schema it knows
+	return body, nil
 }
 
 //
