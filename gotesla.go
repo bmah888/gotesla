@@ -47,6 +47,27 @@ var TokenCachePathNewSuffix = ".new"
 //
 // Authentication
 //
+
+// Auth is an authorization structure for the Tesla API.
+// Field names need to begin with capital letters for the JSON
+// package to marshall them, but we use field tags to make
+// the actual fields on the wire have the correct (all-lowercase)
+// capitalization.
+//
+// A user can either authenticate with an email and password,
+// or if re-authenticating (refreshing a token), pass the
+// refresh token.
+//
+type Auth struct {
+	GrantType string `json:"grant_type"`
+	ClientId string `json:"client_id"`
+	ClientSecret string `json:"client_secret"`
+	Email string `json:"email,omitempty"`
+	Password string `json:"password,omitempty"`
+	RefreshToken string `json:"refresh_token,omitempty"`
+}
+
+// Token is basically an OAUTH 2.0 bearer token plus some metadata.
 type Token struct {
 	AccessToken string `json:"access_token"`
 	TokenType string `json:"token_type"`
@@ -59,22 +80,7 @@ type Token struct {
 // Authenticate with Tesla servers and get a bearer token.
 //
 func GetToken(client *http.Client, username *string, password *string) (*Token, error) {
-	var verbose bool = false
-	
-	// Auth is an authorization structure for the Tesla API.
-	// Field names need to begin with capital letters for the JSON
-	// package to marshall them, but we use field tags to make
-	// the actual fields on the wire have the correct (all-lowercase)
-	// capitalization.
-	type Auth struct {
-		GrantType string `json:"grant_type"`
-		ClientId string `json:"client_id"`
-		ClientSecret string `json:"client_secret"`
-		Email string `json:"email"`
-		Password string `json:"password"`
-	}
-	var t Token
-	
+
 	// Create JSON structure for authentication request
 	var auth Auth
 	auth.GrantType = "password"
@@ -83,9 +89,36 @@ func GetToken(client *http.Client, username *string, password *string) (*Token, 
 	auth.Email = *username
 	auth.Password = *password
 	
+	// call common code
+	return tokenAuthCommon(client, &auth)
+}
+
+//
+// Refresh an existing token
+//
+func RefreshToken(client *http.Client, token *Token) (*Token, error) {
+
+	// Create JSON structure for authentication request
+	var auth Auth
+	auth.GrantType = "refresh_token"
+	auth.ClientId = teslaClientId
+	auth.ClientSecret = teslaClientSecret
+	auth.RefreshToken = token.RefreshToken
+
+	// call common code
+	return tokenAuthCommon(client, &auth)
+}
+
+// Common authentication code used by GetToken and RefreshToken.
+// Basically passes an authentication structure to Telsa and
+// gets back a Token.
+func tokenAuthCommon(client *http.Client, auth *Auth) (*Token, error) {
+	var verbose bool = false
+	var t Token
+
 	authjson, err := json.Marshal(auth)
 	if err != nil {
-		return &t, err
+		return nil, err
 	}
 	if verbose {
 		fmt.Printf("Auth JSON: %s\n", authjson)
@@ -137,12 +170,27 @@ func SaveCachedToken(t *Token) error {
 	return nil
 }
 
-// Get a bearer token and cache it in the local filesystem
+// Get a token and cache it in the local filesystem
 // This function is preferred over GetToken because it (in theory anyway)
 // should result in fewer authentication calls to Tesla's servers due to
 // caching.
 func GetAndCacheToken(client *http.Client, username *string, password *string) (*Token, error) {
 	t, err := GetToken(client, username, password)
+	if err != nil {
+		return t, err
+	}
+	err = SaveCachedToken(t)
+	if err != nil {
+		return t, err
+	}
+
+	return t, nil
+}
+
+// Refresh a token and cache it in the local filesystem
+// This function is preferred over RefreshToken.
+func RefreshAndCacheToken(client *http.Client, token *Token) (*Token, error) {
+	t, err := RefreshToken(client, token)
 	if err != nil {
 		return t, err
 	}
