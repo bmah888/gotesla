@@ -47,7 +47,7 @@ func main() {
 
 	// Output just the token, or the entire JSON structure as appropriate
 	if *jsonOutput {
-		b, err := json.Marshal(*t)
+		b, err := json.MarshalIndent(*t, "", "    ")
 		if err != nil {
 			fmt.Println(err)
 		}
