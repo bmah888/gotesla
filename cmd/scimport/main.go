@@ -20,9 +20,6 @@ import (
 	influxClient "github.com/influxdata/influxdb/client/v2" // too many things called "client"
 )
 
-// Authentication for Tesla API
-var BearerToken string
-
 // InfluxDB parameters
 var InfluxUrl string
 var InfluxDb string
@@ -35,7 +32,6 @@ func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	
 	// Command-line arguments
-	flag.StringVar(&BearerToken, "token", "", "Tesla authentication token")
 	flag.StringVar(&InfluxUrl, "influx-url", "http://localhost:8086",
 		"Influx database server URL")
 	flag.StringVar(&InfluxDb, "influx-database", "tesla",
@@ -47,6 +43,13 @@ func main() {
 	// Parse command-line arguments
 	flag.Parse()
 	
+	// Get cached Tesla authentication token
+	token, err := gotesla.LoadCachedToken()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
 	// Don't verify TLS certs...
 	tls := &tls.Config{InsecureSkipVerify: true}
 	
@@ -57,7 +60,7 @@ func main() {
 	client := &http.Client{Transport: tr}
 	
 	// Get vehicles list
-	vr, err := gotesla.GetVehicles(client, BearerToken)
+	vr, err := gotesla.GetVehicles(client, token)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -83,7 +86,7 @@ func main() {
 				fmt.Printf("Vehicle: id %d VIN %s\n", v.Id, v.Vin)
 			}
 
-			nc, err := gotesla.GetNearbyChargers(client, BearerToken, v.Id)
+			nc, err := gotesla.GetNearbyChargers(client, token, v.Id)
 			if err != nil {
 				fmt.Println(err)
 				return
