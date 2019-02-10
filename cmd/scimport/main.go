@@ -30,7 +30,7 @@ func main() {
 
 	// Seed random number generator, for semi-random polling interval
 	rand.Seed(time.Now().UTC().UnixNano())
-	
+
 	// Command-line arguments
 	flag.StringVar(&InfluxUrl, "influx-url", "http://localhost:8086",
 		"Influx database server URL")
@@ -42,7 +42,7 @@ func main() {
 
 	// Parse command-line arguments
 	flag.Parse()
-	
+
 	// Get cached Tesla authentication token
 	token, err := gotesla.LoadCachedToken()
 	if err != nil {
@@ -52,13 +52,13 @@ func main() {
 
 	// Don't verify TLS certs...
 	tls := &tls.Config{InsecureSkipVerify: true}
-	
+
 	// Get TLS transport
 	tr := &http.Transport{TLSClientConfig: tls}
-	
+
 	// Make an HTTPS client
 	client := &http.Client{Transport: tr}
-	
+
 	// Get vehicles list
 	vr, err := gotesla.GetVehicles(client, token)
 	if err != nil {
@@ -67,7 +67,7 @@ func main() {
 	}
 
 	if verbose {
-		fmt.Printf("%d vehicles retrieved\n", vr.Count);
+		fmt.Printf("%d vehicles retrieved\n", vr.Count)
 	}
 
 	// Get a new HTTP client for InfluxDB
@@ -92,7 +92,7 @@ func main() {
 				return
 			}
 			timeCongestion := time.Unix(int64(nc.Response.CongestionSyncTimeUtcSecs), 0)
-			timeStamp := time.Unix(int64(nc.Response.Timestamp / 1000), 0)
+			timeStamp := time.Unix(int64(nc.Response.Timestamp/1000), 0)
 			if verbose {
 				fmt.Printf("CongestionSyncTimeUtcSecs: %s\n", timeCongestion.Format(time.RFC3339))
 				fmt.Printf("TimeStamp: %s\n", timeStamp.Format(time.RFC3339))
@@ -100,7 +100,7 @@ func main() {
 
 			// Make a batch of points
 			bp, err := influxClient.NewBatchPoints(influxClient.BatchPointsConfig{
-				Database: InfluxDb,
+				Database:  InfluxDb,
 				Precision: "us",
 			})
 			if err != nil {
@@ -116,10 +116,10 @@ func main() {
 					"type": suc.Type,
 					"name": suc.Name,
 				}
-				fields := map[string]interface{} {
+				fields := map[string]interface{}{
 					"available_stalls": suc.AvailableStalls,
-					"total_stalls": suc.TotalStalls,
-					"site_closed": suc.SiteClosed,
+					"total_stalls":     suc.TotalStalls,
+					"site_closed":      suc.SiteClosed,
 				}
 
 				pt, err := influxClient.NewPoint(
@@ -133,7 +133,7 @@ func main() {
 					return
 				}
 				bp.AddPoint(pt)
-				
+
 				if verbose {
 					fmt.Printf("%s (%d/%d available)\n", suc.Name, suc.AvailableStalls, suc.TotalStalls)
 					fmt.Printf("Tags: %v\n", tags)
@@ -149,7 +149,6 @@ func main() {
 			}
 
 		}
-
 
 		sleepTime := (15 + rand.Intn(30))
 		if verbose {

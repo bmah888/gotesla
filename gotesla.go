@@ -59,21 +59,21 @@ var TokenCachePathNewSuffix = ".new"
 // refresh token.
 //
 type Auth struct {
-	GrantType string `json:"grant_type"`
-	ClientId string `json:"client_id"`
+	GrantType    string `json:"grant_type"`
+	ClientId     string `json:"client_id"`
 	ClientSecret string `json:"client_secret"`
-	Email string `json:"email,omitempty"`
-	Password string `json:"password,omitempty"`
+	Email        string `json:"email,omitempty"`
+	Password     string `json:"password,omitempty"`
 	RefreshToken string `json:"refresh_token,omitempty"`
 }
 
 // Token is basically an OAUTH 2.0 bearer token plus some metadata.
 type Token struct {
-	AccessToken string `json:"access_token"`
-	TokenType string `json:"token_type"`
-	ExpiresIn int `json:"expires_in"`
+	AccessToken  string `json:"access_token"`
+	TokenType    string `json:"token_type"`
+	ExpiresIn    int    `json:"expires_in"`
 	RefreshToken string `json:"refresh_token"`
-	CreatedAt int `json:"created_at"`
+	CreatedAt    int    `json:"created_at"`
 }
 
 //
@@ -88,7 +88,7 @@ func GetToken(client *http.Client, username *string, password *string) (*Token, 
 	auth.ClientSecret = teslaClientSecret
 	auth.Email = *username
 	auth.Password = *password
-	
+
 	// call common code
 	return tokenAuthCommon(client, &auth)
 }
@@ -125,7 +125,7 @@ func tokenAuthCommon(client *http.Client, auth *Auth) (*Token, error) {
 	}
 
 	body, err := PostTesla(client, nil, "/oauth/token", authjson)
-	
+
 	if err != nil {
 		return nil, err
 	}
@@ -138,7 +138,7 @@ func tokenAuthCommon(client *http.Client, auth *Auth) (*Token, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return &t, nil
 }
 
@@ -154,15 +154,15 @@ func SaveCachedToken(t *Token) error {
 	if err != nil {
 		return err
 	}
-	
+
 	// Write it to the file
-	err = ioutil.WriteFile(TokenCachePath + TokenCachePathNewSuffix, tokenJSON, 0600)
+	err = ioutil.WriteFile(TokenCachePath+TokenCachePathNewSuffix, tokenJSON, 0600)
 	if err != nil {
 		return err
 	}
-	
+
 	// Move into place
-	err = os.Rename(TokenCachePath + TokenCachePathNewSuffix, TokenCachePath)
+	err = os.Rename(TokenCachePath+TokenCachePathNewSuffix, TokenCachePath)
 	if err != nil {
 		return err
 	}
@@ -205,7 +205,7 @@ func RefreshAndCacheToken(client *http.Client, token *Token) (*Token, error) {
 // Load the token from the cache file
 func LoadCachedToken() (*Token, error) {
 	var t Token
-	
+
 	body, err := ioutil.ReadFile(TokenCachePath)
 	if err != nil {
 		return nil, err
@@ -216,18 +216,18 @@ func LoadCachedToken() (*Token, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return &t, nil
 }
 
 // Delete cached token
-func DeleteCachedToken() (error) {
+func DeleteCachedToken() error {
 	err := os.Remove(TokenCachePath)
 	return err
 }
 
 // Return true if a token is valid
-func CheckToken(t *Token) (bool) {
+func CheckToken(t *Token) bool {
 	start, end := TokenTimes(t)
 	now := time.Now()
 	return (start.Before(now) && now.Before(end))
@@ -236,7 +236,7 @@ func CheckToken(t *Token) (bool) {
 // Retrieve start and end times for a token
 func TokenTimes(t *Token) (start, end time.Time) {
 	start = time.Unix(int64(t.CreatedAt), 0)
-	end = time.Unix(int64(t.CreatedAt) + int64(t.ExpiresIn), 0)
+	end = time.Unix(int64(t.CreatedAt)+int64(t.ExpiresIn), 0)
 	return
 }
 
@@ -245,15 +245,15 @@ func TokenTimes(t *Token) (start, end time.Time) {
 //
 func GetTesla(client *http.Client, token *Token, endpoint string) ([]byte, error) {
 	var verbose bool = false
-	
+
 	// Figure out the correct endpoint
 	var url = BaseUrl + endpoint
 	if verbose {
 		fmt.Printf("URL: %s\n", url)
 	}
-	
+
 	// Set up GET
-  	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -261,14 +261,14 @@ func GetTesla(client *http.Client, token *Token, endpoint string) ([]byte, error
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept", "application/json")
 	if token != nil {
-		req.Header.Add("Authorization", "Bearer " + token.AccessToken)
+		req.Header.Add("Authorization", "Bearer "+token.AccessToken)
 	}
 
 	if verbose {
 		fmt.Printf("Headers: %s\n", req.Header)
 	}
 
-	resp, err := client.Do(req) 
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -283,7 +283,7 @@ func GetTesla(client *http.Client, token *Token, endpoint string) ([]byte, error
 
 	// Caller needs to parse this in the context of whatever schema it knows
 	return body, nil
-	
+
 }
 
 func PostTesla(client *http.Client, token *Token, endpoint string, payload []byte) ([]byte, error) {
@@ -296,7 +296,7 @@ func PostTesla(client *http.Client, token *Token, endpoint string, payload []byt
 	}
 
 	// Set up POST
-  	req, err := http.NewRequest("POST", url, bytes.NewReader(payload))
+	req, err := http.NewRequest("POST", url, bytes.NewReader(payload))
 	if err != nil {
 		return nil, err
 	}
@@ -304,14 +304,14 @@ func PostTesla(client *http.Client, token *Token, endpoint string, payload []byt
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept", "application/json")
 	if token != nil {
-		req.Header.Add("Authorization", "Bearer " + token.AccessToken)
+		req.Header.Add("Authorization", "Bearer "+token.AccessToken)
 	}
 
 	if verbose {
 		fmt.Printf("Headers: %s\n", req.Header)
 	}
 
-	resp, err := client.Do(req) 
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -323,7 +323,7 @@ func PostTesla(client *http.Client, token *Token, endpoint string, payload []byt
 	if verbose {
 		fmt.Printf("Resp JSON %s\n", body)
 	}
-	
+
 	// Caller needs to parse this in the context of whatever schema it knows
 	return body, nil
 }
@@ -332,19 +332,19 @@ func PostTesla(client *http.Client, token *Token, endpoint string, payload []byt
 // Vehicle Information queries
 //
 type Vehicle struct {
-	Id int `json:"id"`
-	VehicleId int `json:"vehicle_id"`
-	Vin string `json:"vin"`
-	DisplayName string `json:"display_name"`
-	OptionCodes string `json:"option_codes"`
-	Color interface{} `json:"color"`
-	Tokens []string `json:"tokens"`
-	State string `json:"state"`
-	InService bool `json:"in_service"`
-	IdS string `json:"id_s"`
-	CalendarEnabled bool `json:'calendar_enabled'`
-	ApiVersion int `json:'api_version'`
-	BackseatToken interface{} `json:"backseat_token"`
+	Id                     int         `json:"id"`
+	VehicleId              int         `json:"vehicle_id"`
+	Vin                    string      `json:"vin"`
+	DisplayName            string      `json:"display_name"`
+	OptionCodes            string      `json:"option_codes"`
+	Color                  interface{} `json:"color"`
+	Tokens                 []string    `json:"tokens"`
+	State                  string      `json:"state"`
+	InService              bool        `json:"in_service"`
+	IdS                    string      `json:"id_s"`
+	CalendarEnabled        bool        `json:'calendar_enabled'`
+	ApiVersion             int         `json:'api_version'`
+	BackseatToken          interface{} `json:"backseat_token"`
 	BackseatTokenUpdatedAt interface{} `json:"backseat_token_updated_at"`
 }
 
@@ -354,7 +354,7 @@ type Vehicles []struct {
 
 type VehiclesResponse struct {
 	Response Vehicles `json:"response"`
-	Count int `json:"count"`
+	Count    int      `json:"count"`
 }
 
 func GetVehicles(client *http.Client, token *Token) (VehiclesResponse, error) {
@@ -368,7 +368,7 @@ func GetVehicles(client *http.Client, token *Token) (VehiclesResponse, error) {
 	if verbose {
 		fmt.Printf("Response: %s\n", vehiclejson)
 	}
-	
+
 	err = json.Unmarshal(vehiclejson, &vr)
 	if err != nil {
 		return vr, err
@@ -380,15 +380,15 @@ func GetVehicles(client *http.Client, token *Token) (VehiclesResponse, error) {
 // Nearby Charging Sites
 
 type ChargerLocation struct {
-	Lat float64 `json:"lat"`
+	Lat  float64 `json:"lat"`
 	Long float64 `json:"long"`
 }
 
 type Charger struct {
-	Location ChargerLocation `json:"location"`
-	Name string `json:"name"`
-	Type string `json:"type"` // "destination" or "supercharger"
-	DistanceMiles float64 `json:"distance_miles"`
+	Location      ChargerLocation `json:"location"`
+	Name          string          `json:"name"`
+	Type          string          `json:"type"` // "destination" or "supercharger"
+	DistanceMiles float64         `json:"distance_miles"`
 }
 
 type DestinationCharger struct {
@@ -397,17 +397,17 @@ type DestinationCharger struct {
 
 type Supercharger struct {
 	Charger
-	AvailableStalls int `json:"available_stalls"`
-	TotalStalls int `json:"total_stalls"`
-	SiteClosed bool `json:"site_closed"`
+	AvailableStalls int  `json:"available_stalls"`
+	TotalStalls     int  `json:"total_stalls"`
+	SiteClosed      bool `json:"site_closed"`
 }
 
 type NearbyChargingSitesResponse struct {
 	Response struct {
-		CongestionSyncTimeUtcSecs int `json:"congestion_sync_time_utc_secs"`
-		DestinationCharging []DestinationCharger `json:"destination_charging"`
-		Superchargers []Supercharger `json:"superchargers"`
-		Timestamp int `json:"timestamp"`
+		CongestionSyncTimeUtcSecs int                  `json:"congestion_sync_time_utc_secs"`
+		DestinationCharging       []DestinationCharger `json:"destination_charging"`
+		Superchargers             []Supercharger       `json:"superchargers"`
+		Timestamp                 int                  `json:"timestamp"`
 	}
 }
 
@@ -415,14 +415,14 @@ func GetNearbyChargers(client *http.Client, token *Token, id int) (NearbyChargin
 	var verbose = false
 	var ncsr NearbyChargingSitesResponse
 
-	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles/" + strconv.Itoa(id) + "/nearby_charging_sites")
+	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles/"+strconv.Itoa(id)+"/nearby_charging_sites")
 	if err != nil {
 		return ncsr, err
 	}
 	if verbose {
 		fmt.Printf("Response: %s\n", vehiclejson)
 	}
-	
+
 	err = json.Unmarshal(vehiclejson, &ncsr)
 	if err != nil {
 		return ncsr, err
@@ -430,4 +430,3 @@ func GetNearbyChargers(client *http.Client, token *Token, id int) (NearbyChargin
 
 	return ncsr, nil
 }
-

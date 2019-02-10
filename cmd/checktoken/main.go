@@ -39,7 +39,7 @@ func printCached() {
 		fmt.Println(err)
 		return
 	}
-	
+
 	// Output just the token, or the entire JSON structure as appropriate
 	if jsonOutput {
 		b, err := json.MarshalIndent(*t, "", "    ")
@@ -70,10 +70,10 @@ func main() {
 	flag.BoolVar(&jsonOutput, "json", false, "JSON output")
 
 	// XXX define new flag.Usage() so we can print the valid commands
-	
+
 	// Parse command-line arguments
 	flag.Parse()
-	
+
 	// We need exactly one word after any arguments...it's a command
 	if flag.NArg() != 1 {
 		fmt.Println("Need exactly one command")
@@ -84,54 +84,55 @@ func main() {
 	// check, delete, print
 	switch flag.Arg(0) {
 
-		// check
-		// Check the validity of the cached token
-		case "check": {
+	// check
+	// Check the validity of the cached token
+	case "check":
+		{
 			if checkCached() == false {
 				// XXX find a more graceful way to exit
 				os.Exit(1)
 			}
 		}
 
-		case "clear":
+	case "clear":
 		deleteCached()
 
-		// print
-		// Print the cached token in JSON representation
-		case "print":
+	// print
+	// Print the cached token in JSON representation
+	case "print":
 		printCached()
 
-		default:
+	default:
 		fmt.Println("Invalid command")
 
 	}
 
-/*
-	// Don't verify TLS certs...
-	tls := &tls.Config{InsecureSkipVerify: true}
-	
-	// Get TLS transport
-	tr := &http.Transport{TLSClientConfig: tls}
-	
-	// Make an HTTPS client
-	client := &http.Client{Transport: tr}
-	
-	// Get an authentication token
-	t, err := gotesla.GetAndCacheToken(client, email, password)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	/*
+		// Don't verify TLS certs...
+		tls := &tls.Config{InsecureSkipVerify: true}
 
-	// Output just the token, or the entire JSON structure as appropriate
-	if *jsonOutput {
-		b, err := json.Marshal(*t)
+		// Get TLS transport
+		tr := &http.Transport{TLSClientConfig: tls}
+
+		// Make an HTTPS client
+		client := &http.Client{Transport: tr}
+
+		// Get an authentication token
+		t, err := gotesla.GetAndCacheToken(client, email, password)
 		if err != nil {
 			fmt.Println(err)
+			return
 		}
-		os.Stdout.Write(b)
-	} else {
-		fmt.Printf("%s\n", t.AccessToken)
-	}
-*/
+
+		// Output just the token, or the entire JSON structure as appropriate
+		if *jsonOutput {
+			b, err := json.Marshal(*t)
+			if err != nil {
+				fmt.Println(err)
+			}
+			os.Stdout.Write(b)
+		} else {
+			fmt.Printf("%s\n", t.AccessToken)
+		}
+	*/
 }

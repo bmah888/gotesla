@@ -29,16 +29,16 @@ func main() {
 
 	// Parse command-line arguments
 	flag.Parse()
-	
+
 	// Don't verify TLS certs...
 	tls := &tls.Config{InsecureSkipVerify: true}
-	
+
 	// Get TLS transport
 	tr := &http.Transport{TLSClientConfig: tls}
-	
+
 	// Make an HTTPS client
 	client := &http.Client{Transport: tr}
-	
+
 	var t *gotesla.Token
 	var err error
 
@@ -64,7 +64,7 @@ func main() {
 		fmt.Println("Either -refresh needs to be set, or furnish both -email and -password")
 		return
 	}
-	
+
 	// Output just the token, or the entire JSON structure as appropriate
 	if *jsonOutput {
 		b, err := json.MarshalIndent(*t, "", "    ")
