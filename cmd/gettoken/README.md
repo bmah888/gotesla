@@ -3,8 +3,15 @@ gettoken
 
 Obtains an authentication token from Tesla API servers.
 
-Pass MyTesla account credentials using the `-email` and `-password`
-options.
+There are two modes of operation.  The first is a straightforward
+login, using an owner's MyTesla account credentials.  Pass these using
+the `-email` and `-password` options.  Tokens are valid for about 45
+days.
+
+The other mode of operation is to refresh an existing token, before it
+expires.  This allows a user's login session to extend much longer
+than the 45-day lifetime of a token.  To refresh a token, pass the
+`-refresh` command-line flag.
 
 The authentication token, which is passed as a parameter in Tesla API
 calls, is saved in the file ~/.gotesla.cache.  This is the place where
