@@ -32,6 +32,11 @@ A utility to obtain an authentication token from Tesla, used for
 various API calls.  Requires a valid MyTesla account (email address)
 and password.
 
+checktoken
+----------
+
+Displays and manipulates the token in the local token cache.
+
 scimport
 --------
 
