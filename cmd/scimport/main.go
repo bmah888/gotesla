@@ -17,7 +17,7 @@ import (
 	"net/http"
 	"time"
 
-	influxClient "github.com/influxdata/influxdb/client/v2" // too many things called "client"
+	influxClient "github.com/influxdata/influxdb1-client/v2" // too many things called "client"
 )
 
 // InfluxDB parameters

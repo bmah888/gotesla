@@ -11,15 +11,10 @@ Supercharger occupancy.
 This program requires that a cached authentication token be created
 using the gettoken utility.
 
-This code has some issues because as of this writing, the community
-version of InfluxDB is in flux, and it might be difficult to build the
-required InfluxDB golang client library.  I've found this to work:
+This utility requires the InfluxDB golang client library, for
+version 1 of InfluxDB.  This can be obtained with:
 
-    % mkdir -p $GOPATH/github.com/influxdata
-    % cd $GOPATH/github.com/influxdata
-    % git clone https://github.com/influxdata/influxdb.git
-    % git checkout 1.7
-    % go get github.com/influxdata/influxdb/client/v2
+    % go get github.com/influxdata/influxdb1-client/v2
 
 Use the `-influx-url`, `-influx-database`, and `-influx-measurement` flags
 to specify where to write the data.  The defaults are to write a
