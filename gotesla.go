@@ -7,7 +7,7 @@
 //
 
 //
-// Client API package for Tesla vehicles
+// Package gotesla is a client library for Tesla vehicles
 //
 // This package wraps some (but by no means all) of the various
 // API calls and data structures in the Tesla API.  Note that the
@@ -77,7 +77,8 @@ type Token struct {
 }
 
 //
-// Authenticate with Tesla servers and get a bearer token.
+// GetToken authenticates with Tesla servers and returns a Token
+// structure.
 //
 func GetToken(client *http.Client, username *string, password *string) (*Token, error) {
 
@@ -94,7 +95,8 @@ func GetToken(client *http.Client, username *string, password *string) (*Token, 
 }
 
 //
-// Refresh an existing token
+// RefreshToken refreshes an existing token and returns a new Token
+// structure.
 //
 func RefreshToken(client *http.Client, token *Token) (*Token, error) {
 
@@ -143,9 +145,10 @@ func tokenAuthCommon(client *http.Client, auth *Auth) (*Token, error) {
 }
 
 //
-// Save token
-// Write the token to the new file and if that succeeds, move it
-// atomically into place
+// SaveCachedToken saves a Token structure (JSON representation)
+// in a file that is by default in the user's home directory.
+// Writes the token to a temporary file and if that succeeds, move it
+// atomically into place.
 //
 func SaveCachedToken(t *Token) error {
 
@@ -170,7 +173,7 @@ func SaveCachedToken(t *Token) error {
 	return nil
 }
 
-// Get a token and cache it in the local filesystem
+// GetAndCacheToken gets a new token and saves it in the local filesystem.
 // This function is preferred over GetToken because it (in theory anyway)
 // should result in fewer authentication calls to Tesla's servers due to
 // caching.
@@ -187,7 +190,8 @@ func GetAndCacheToken(client *http.Client, username *string, password *string) (
 	return t, nil
 }
 
-// Refresh a token and cache it in the local filesystem
+// RefreshAndCacheToken does a refresh and saves the returned token in
+// the local filesystem
 // This function is preferred over RefreshToken.
 func RefreshAndCacheToken(client *http.Client, token *Token) (*Token, error) {
 	t, err := RefreshToken(client, token)
@@ -202,7 +206,7 @@ func RefreshAndCacheToken(client *http.Client, token *Token) (*Token, error) {
 	return t, nil
 }
 
-// Load the token from the cache file
+// LoadCachedToken returns the token (if any) from the cache file.
 func LoadCachedToken() (*Token, error) {
 	var t Token
 
@@ -220,20 +224,23 @@ func LoadCachedToken() (*Token, error) {
 	return &t, nil
 }
 
-// Delete cached token
+// DeleteCachedToken removes the cached token file.
 func DeleteCachedToken() error {
 	err := os.Remove(TokenCachePath)
 	return err
 }
 
-// Return true if a token is valid
+// CheckToken returns true if a token is valid.
 func CheckToken(t *Token) bool {
+
+	// Currently the only check is for timestamp validity, which
+	// assume the local clock is synchronized.
 	start, end := TokenTimes(t)
 	now := time.Now()
 	return (start.Before(now) && now.Before(end))
 }
 
-// Retrieve start and end times for a token
+// TokenTimes returns the start and end times for a token.
 func TokenTimes(t *Token) (start, end time.Time) {
 	start = time.Unix(int64(t.CreatedAt), 0)
 	end = time.Unix(int64(t.CreatedAt)+int64(t.ExpiresIn), 0)
@@ -243,6 +250,10 @@ func TokenTimes(t *Token) (start, end time.Time) {
 //
 // General Tesla API requests
 //
+
+// GetTesla performs a GET request to the Tesla API.
+// If a non-nil authentication Token structure is passed, the bearer
+// token part is used to authenticate the request.
 func GetTesla(client *http.Client, token *Token, endpoint string) ([]byte, error) {
 	var verbose bool = false
 
@@ -286,6 +297,7 @@ func GetTesla(client *http.Client, token *Token, endpoint string) ([]byte, error
 
 }
 
+// PostTesla performs an HTTP POST request to the Tesla API.
 func PostTesla(client *http.Client, token *Token, endpoint string, payload []byte) ([]byte, error) {
 	var verbose bool = false
 
@@ -331,6 +343,8 @@ func PostTesla(client *http.Client, token *Token, endpoint string, payload []byt
 //
 // Vehicle Information queries
 //
+
+// Vehicle is a structure that describes a single Tesla vehicle.
 type Vehicle struct {
 	Id                     int         `json:"id"`
 	VehicleId              int         `json:"vehicle_id"`
@@ -348,15 +362,19 @@ type Vehicle struct {
 	BackseatTokenUpdatedAt interface{} `json:"backseat_token_updated_at"`
 }
 
+// Vehicles encapsulates a collection of Tesla Vehicles.
 type Vehicles []struct {
 	*Vehicle
 }
 
+// VehiclesResponse is the response to a vehicles API query.
 type VehiclesResponse struct {
 	Response Vehicles `json:"response"`
 	Count    int      `json:"count"`
 }
 
+// GetVehicles performs a vehicles query to retrieve information on all
+// the Tesla vehicles associated with an account.
 func GetVehicles(client *http.Client, token *Token) (VehiclesResponse, error) {
 	var verbose = false
 	var vr VehiclesResponse
@@ -379,11 +397,13 @@ func GetVehicles(client *http.Client, token *Token) (VehiclesResponse, error) {
 
 // Nearby Charging Sites
 
+// ChargerLocation represents the physical coordinates of a charging station.
 type ChargerLocation struct {
 	Lat  float64 `json:"lat"`
 	Long float64 `json:"long"`
 }
 
+// Charger represents information common to all Tesla chargers.
 type Charger struct {
 	Location      ChargerLocation `json:"location"`
 	Name          string          `json:"name"`
@@ -391,10 +411,14 @@ type Charger struct {
 	DistanceMiles float64         `json:"distance_miles"`
 }
 
+// DestinationCharger represents a Tesla Destination charger.
 type DestinationCharger struct {
 	Charger
 }
 
+// Supercharger represents a Tesla Supercharger.
+// In addition to the common Charger fields, this also includes
+// information on stall occupancy.
 type Supercharger struct {
 	Charger
 	AvailableStalls int  `json:"available_stalls"`
@@ -402,6 +426,9 @@ type Supercharger struct {
 	SiteClosed      bool `json:"site_closed"`
 }
 
+// NearbyChargingSitesResponse encapsulates the response to a
+// nearby_charging_sites API query on a given vehicle.  Note that
+// queries are specific to a given vehicle.
 type NearbyChargingSitesResponse struct {
 	Response struct {
 		CongestionSyncTimeUtcSecs int                  `json:"congestion_sync_time_utc_secs"`
@@ -411,6 +438,7 @@ type NearbyChargingSitesResponse struct {
 	}
 }
 
+// GetNearbyChargers retrieves the chargers closest to a given vehicle.
 func GetNearbyChargers(client *http.Client, token *Token, id int) (NearbyChargingSitesResponse, error) {
 	var verbose = false
 	var ncsr NearbyChargingSitesResponse
