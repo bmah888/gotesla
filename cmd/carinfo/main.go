@@ -100,4 +100,27 @@ func main() {
 		fmt.Printf("Found id %d\n", idFound)
 	}
 
+	csr, err := gotesla.GetChargeState(client, token, idFound)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("charge_state: %+v\n", csr)
+
+	dsr, err := gotesla.GetDriveState(client, token, idFound)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("drive_state: %+v\n", dsr)
+
+	mer, err := gotesla.GetMobileEnabled(client, token, idFound)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("mobile_enabled: %+v\n", mer)
+
+
+	return
 }

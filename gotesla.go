@@ -395,6 +395,146 @@ func GetVehicles(client *http.Client, token *Token) (VehiclesResponse, error) {
 	return vr, nil
 }
 
+// Charge State
+type ChargeStateResponse struct {
+	Response struct {
+		BatteryHeaterOn              bool        `json:"battery_heater_on"`
+		BatteryLevel                 int         `json:"battery_level"`
+		BatteryRange                 float64     `json:"battery_range"`
+		ChargeCurrentRequest         int         `json:"charge_current_request"`
+		ChargeCurrentRequestMax      int         `json:"charge_current_request_max"`
+		ChargeEnableRequest          bool        `json:"charge_enable_request"`
+		ChargeLimitSoc               int         `json:"charge_limit_soc"`
+		ChargeLimitSocMax            int         `json:"charge_limit_soc_max"`
+		ChargeLimitSocMin            int         `json:"charge_limit_soc_min"`
+		ChargeLimitSocStd            int         `json:"charge_limit_soc_std"`
+		ChargeMilesAddedIdeal        float64     `json:"charge_miles_added_ideal"`
+		ChargeMilesAddedRated        float64     `json:"charge_miles_added_rated"`
+		ChargePortColdWeatherMode    bool        `json:"charge_port_cold_weather_mode"`
+		ChargePortDoorOpen           bool        `json:"charge_port_door_open"`
+		ChargePortLatch              string      `json:"charge_port_latch"` // "Engaged", "Disengaged"
+		ChargeRate                   float64     `json:"charge_rate"`
+		ChargeToMaxRange             bool        `json:"charge_to_max_range"`
+		ChargerActualCurrent         int         `json:"charge_actual_current"`
+		ChargerPhases                int         `json:"charge_phases"` // 1?
+		ChargerPilotCurrent          int         `json:"charger_pilot_current"`
+		ChargerPower                 int         `json:"charger_power"`
+		ChargerVoltage               int         `json:"charger_voltage"`
+		ChargingState                string      `json:"charging_state"` // "Stopped", "Starting", "Charging", "Disconnected"
+		ConnChargeCable              string      `json:"conn_charge_cable"`
+		EstBatteryRange              float64     `json:"est_battery_range"`
+		FastChargerBrand             string      `json:"fast_charger_brand"`
+		FastChargerPresent           bool        `json:"fast_charger_present"`
+		FastChargerType              string      `json:"fast_charger_type"`
+		IdealBatteryRange            float64     `json:"ideal_battery_range"`
+		ManagedChargingActive        bool        `json:"managed_charging_active"`
+		ManagedChargingStartTime     interface{} `json:"managed_charging_start_time"`
+		ManagedChargingUserCancelled bool        `json:"managed_charging_user_cancelled"`
+		MaxRangeChargeCounter        int         `json:"max_range_charge_counter"`
+		NotEnoughPowerToHeat         bool        `json:"not_enough_power_to_heat"`
+		ScheduledChargingPending     bool        `json:"scheduled_charging_pending"`
+		ScheduledChargingStartTime   int         `json:"scheduled_charging_start_time"` // seconds
+		TimeToFullCharge             float64     `json:"time_to_full_charge"`           // in hours
+		TimeStamp                    int         `json:"timestamp"`                     // seconds
+		TripCharging                 bool        `json:"trip_charging"`
+		UsableBatteryLevel           int         `json:"usable_battery_level"`
+		UserChargeEnableRequest      bool        `json:"user_charge_enable_request"`
+	}
+}
+
+// GetChargeState retrieves the state of charge in the battery and various settings
+func GetChargeState(client *http.Client, token *Token, id int) (ChargeStateResponse, error) {
+	var verbose = true
+	var csr ChargeStateResponse
+
+	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles/"+strconv.Itoa(id)+"/data_request/charge_state")
+	if err != nil {
+		return csr, err
+	}
+	if verbose {
+		fmt.Printf("Response: %s\n", vehiclejson)
+	}
+
+	err = json.Unmarshal(vehiclejson, &csr)
+	if err != nil {
+		return csr, err
+	}
+	return csr, nil
+}
+
+// Climate State
+
+// Drive State
+type DriveStateResponse struct {
+	Response struct {
+		GpsAsOf                 int         `json:"gps_as_of"`
+		Heading                 int         `json:"heading"`
+		Latitude                float64     `json:"latitude"`
+		Longitude               float64     `json:"longitude"`
+		NativeLatitude          float64     `json:"native_latitude"`
+		NativeLocationSupported int         `json:"native_location_supported"`
+		NativeLongitude         float64     `json:"native_longitude"`
+		NativeType              string      `json:"wgs"`
+		Power                   int         `json:"power"`
+		ShiftState              interface{} `json:"shift_state"`
+		Speed                   interface{} `json:"speed"`
+		TimeStamp               int         `json:"timestamp"` // seconds
+	}
+}
+
+// GetDriveState returns the driving and position state of the vehicle
+func GetDriveState(client *http.Client, token *Token, id int) (DriveStateResponse, error) {
+	var verbose = true
+	var dsr DriveStateResponse
+
+	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles/"+strconv.Itoa(id)+"/data_request/drive_state")
+	if err != nil {
+		return dsr, err
+	}
+	if verbose {
+		fmt.Printf("Response: %s\n", vehiclejson)
+	}
+
+	err = json.Unmarshal(vehiclejson, &dsr)
+	if err != nil {
+		return dsr, err
+	}
+
+	return dsr, nil
+}
+
+// GUI Settings
+
+// Vehicle State
+
+// Vehicle Config
+
+// Mobile Enabled
+type MobileEnabledResponse struct {
+	Response bool `json:"response"`
+}
+
+// GetMobileEnabled returns whether mobile access is enabled
+func GetMobileEnabled(client *http.Client, token *Token, id int) (MobileEnabledResponse, error) {
+	var verbose = false
+	var mer MobileEnabledResponse
+
+	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles/"+strconv.Itoa(id)+"/mobile_enabled")
+	if err != nil {
+		return mer, err
+	}
+	if verbose {
+		fmt.Printf("Response: %s\n", vehiclejson)
+	}
+
+	err = json.Unmarshal(vehiclejson, &mer)
+	if err != nil {
+		return mer, err
+	}
+
+	return mer, nil
+}
+
 // Nearby Charging Sites
 
 // ChargerLocation represents the physical coordinates of a charging station.
