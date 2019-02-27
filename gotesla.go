@@ -435,7 +435,7 @@ type ChargeStateResponse struct {
 		ScheduledChargingPending     bool        `json:"scheduled_charging_pending"`
 		ScheduledChargingStartTime   int         `json:"scheduled_charging_start_time"` // seconds
 		TimeToFullCharge             float64     `json:"time_to_full_charge"`           // in hours
-		TimeStamp                    int         `json:"timestamp"`                     // seconds
+		TimeStamp                    int         `json:"timestamp"`                     // ms
 		TripCharging                 bool        `json:"trip_charging"`
 		UsableBatteryLevel           int         `json:"usable_battery_level"`
 		UserChargeEnableRequest      bool        `json:"user_charge_enable_request"`
@@ -463,6 +463,61 @@ func GetChargeState(client *http.Client, token *Token, id int) (ChargeStateRespo
 }
 
 // Climate State
+type ClimateStateResponse struct {
+	Response struct {
+		BatteryHeater              bool    `json:"battery_heater"`
+		BatteryHeaterNoPower       bool    `json:"battery_heater_no_power"`
+		DriverTempSetting          float64 `json:"driver_temp_setting"`
+		FanStatus                  int     `json:"fan_status"`
+		InsideTemp                 float64 `json:"inside_temp"`
+		IsAutoConditioningOn       bool    `json:"is_auto_conditioning_on"`
+		IsClimateOn                bool    `json:"is_climate_on"`
+		IsFrontDefrosterOn         bool    `json:"is_front_defroster_on"`
+		IsPreconditioning          bool    `json:"is_preconditioning"`
+		IsRearDefrosterOn          bool    `json:"is_rear_defroster_on"`
+		LeftTempDirection          int     `json:"left_temp_direction"`
+		MaxAvailTemp               float64 `json:"max_avail_temp"`
+		MinAvailTemp               float64 `json:"min_avail_temp"`
+		OutsideTemp                float64 `json:"outside_temp"`
+		PassengerTempSetting       float64 `json:"passenger_temp_setting"`
+		RemoteHeaterControlEnabled bool    `json:"remote_heater_control_enabled"`
+		RightTempDirection         int     `json:"right_temp_direction"`
+		SeatHeaterLeft             int     `json:"seat_heater_left"`
+		SeatHeaterRearCenter       int     `json:"seat_heater_rear_center"`
+		SeatHeaterRearLeft         int     `json:"seat_heater_rear_left"`
+		SeatHeaterRearLeftBack     int     `json:"seat_heater_rear_left_back"`
+		SeatHeaterRearRight        int     `json:"seat_heater_rear_right"`
+		SeatHeaterRearRightBack    int     `json:"seat_heater_rear_right_back"`
+		SeatHeaterRight            int     `json:"seat_heater_right"`
+		SideMirrorHeaters          bool    `json:"side_mirror_heaters"`
+		SmartPreconditioning       bool    `json:"smart_preconditioning"`
+		SteeringWheelHeater        bool    `json:"steering_wheel_heater"`
+		TimeStamp                  int     `json:"timestamp"` // ms
+		WiperBladeHeater           bool    `json:"wiper_blade_heater"`
+	}
+}
+
+// GetClimateState returns information on the current internal
+// temperature and climate control system.
+func GetClimateState(client *http.Client, token *Token, id int) (ClimateStateResponse, error) {
+	var verbose = true
+	var clsr ClimateStateResponse
+
+	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles/"+strconv.Itoa(id)+"/data_request/climate_state")
+	if err != nil {
+		return clsr, err
+	}
+	if verbose {
+		fmt.Printf("Response: %s\n", vehiclejson)
+	}
+
+	err = json.Unmarshal(vehiclejson, &clsr)
+	if err != nil {
+		return clsr, err
+	}
+
+	return clsr, nil
+}
 
 // Drive State
 type DriveStateResponse struct {
@@ -474,11 +529,11 @@ type DriveStateResponse struct {
 		NativeLatitude          float64     `json:"native_latitude"`
 		NativeLocationSupported int         `json:"native_location_supported"`
 		NativeLongitude         float64     `json:"native_longitude"`
-		NativeType              string      `json:"wgs"`
+		NativeType              string      `json:"native_type"`
 		Power                   int         `json:"power"`
 		ShiftState              interface{} `json:"shift_state"`
 		Speed                   interface{} `json:"speed"`
-		TimeStamp               int         `json:"timestamp"` // seconds
+		TimeStamp               int         `json:"timestamp"` // ms
 	}
 }
 

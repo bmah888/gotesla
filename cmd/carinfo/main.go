@@ -107,6 +107,13 @@ func main() {
 	}
 	fmt.Printf("charge_state: %+v\n", csr)
 
+	clsr, err := gotesla.GetClimateState(client, token, idFound)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("climate_state: %+v\n", clsr)
+
 	dsr, err := gotesla.GetDriveState(client, token, idFound)
 	if err != nil {
 		fmt.Println(err)
