@@ -46,23 +46,23 @@ func main() {
 	client := &http.Client{Transport: tr}
 
 	// Get vehicles list
-	vr, err := gotesla.GetVehicles(client, token)
+	vehicles, err := gotesla.GetVehicles(client, token)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
 	if (*verbose) {
-		fmt.Printf("%d vehicles retrieved\n", vr.Count)
+		fmt.Printf("%d vehicles retrieved\n", len(*vehicles))
 	}
 
 	// If no Vehicle ID given, so print a list of all the vehicles
 	if (*id == "") {
 		fmt.Printf("%20s%10s%20s %s\n", "ID", "Model", "VIN", "Name")
-		for i := 0; i < vr.Count; i++ {
+		for i := 0; i < len(*vehicles); i++ {
 			
 			if (*verbose) {
-				fmt.Printf("Option codes: %s\n", vr.Response[i].OptionCodes)
+				fmt.Printf("Option codes: %s\n", (*vehicles)[i].OptionCodes)
 			}
 			
 			// Parse through option codes to find the vehicle model.
@@ -70,24 +70,25 @@ func main() {
 			// In another part of this program we do a more
 			// thorough job of analyzing the option codes.
 			var model string = "Unknown"
-			if strings.Contains(vr.Response[i].OptionCodes, "MDLS") || strings.Contains(vr.Response[i].OptionCodes, "MS04") {
+			var optionCodes string = (*vehicles)[i].OptionCodes
+			if strings.Contains(optionCodes, "MDLS") || strings.Contains(optionCodes, "MS04") {
 				model = "Model S"
-			} else if strings.Contains(vr.Response[i].OptionCodes, "MDLX") {
+			} else if strings.Contains(optionCodes, "MDLX") {
 				model = "Model X"
-			} else if strings.Contains(vr.Response[i].OptionCodes, "MDL3") {
+			} else if strings.Contains(optionCodes, "MDL3") {
 				model = "Model 3"
 			}
 			
-			fmt.Printf("%20d%10s%20s \"%s\"\n", vr.Response[i].Id, model, vr.Response[i].Vin, vr.Response[i].DisplayName)
+			fmt.Printf("%20d%10s%20s \"%s\"\n", (*vehicles)[i].Id, model, (*vehicles)[i].Vin, (*vehicles)[i].DisplayName)
 		}
 	}
 
 	// Try to figure out the actual ID
 	var idFound int = 0
 	iParsed, err := strconv.Atoi(*id)
-	for i := 0; i < vr.Count; i++ {
-		if vr.Response[i].Id == iParsed || vr.Response[i].Vin == *id || vr.Response[i].DisplayName == *id {
-			idFound = vr.Response[i].Id
+	for i := 0; i < len(*vehicles); i++ {
+		if (*vehicles)[i].Id == iParsed || (*vehicles)[i].Vin == *id || (*vehicles)[i].DisplayName == *id {
+			idFound = (*vehicles)[i].Id
 		}
 	}
 

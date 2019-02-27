@@ -25,6 +25,7 @@ package gotesla
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -375,13 +376,13 @@ type VehiclesResponse struct {
 
 // GetVehicles performs a vehicles query to retrieve information on all
 // the Tesla vehicles associated with an account.
-func GetVehicles(client *http.Client, token *Token) (VehiclesResponse, error) {
-	var verbose = false
+func GetVehicles(client *http.Client, token *Token) (*Vehicles, error) {
+	var verbose = true
 	var vr VehiclesResponse
 
 	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles")
 	if err != nil {
-		return vr, err
+		return nil, err
 	}
 	if verbose {
 		fmt.Printf("Response: %s\n", vehiclejson)
@@ -389,10 +390,15 @@ func GetVehicles(client *http.Client, token *Token) (VehiclesResponse, error) {
 
 	err = json.Unmarshal(vehiclejson, &vr)
 	if err != nil {
-		return vr, err
+		return nil, err
 	}
 
-	return vr, nil
+	// Check Count to see if it matches the length of Response
+	if (len(vr.Response) != vr.Count) {
+		return nil, errors.New(fmt.Sprintf("get_vehicles Response length %d != Count %d", len(vr.Response), vr.Count))
+	}
+
+	return &(vr.Response), nil
 }
 
 // Charge State

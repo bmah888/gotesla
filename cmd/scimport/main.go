@@ -60,14 +60,14 @@ func main() {
 	client := &http.Client{Transport: tr}
 
 	// Get vehicles list
-	vr, err := gotesla.GetVehicles(client, token)
+	vehicles, err := gotesla.GetVehicles(client, token)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
 	if verbose {
-		fmt.Printf("%d vehicles retrieved\n", vr.Count)
+		fmt.Printf("%d vehicles retrieved\n", len(*vehicles))
 	}
 
 	// Get a new HTTP client for InfluxDB
@@ -81,7 +81,7 @@ func main() {
 
 	for {
 
-		for _, v := range vr.Response {
+		for _, v := range *vehicles {
 			if verbose {
 				fmt.Printf("Vehicle: id %d VIN %s\n", v.Id, v.Vin)
 			}
