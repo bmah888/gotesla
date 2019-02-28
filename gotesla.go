@@ -681,7 +681,7 @@ type VehicleConfig struct {
 	CanAcceptNavigationRequests bool   `json:"can_accept_navigation_requests"`
 	CanActuateTrunks            bool   `json:"can_actuate_trunks"`
 	CarSpecialType              string `json:"car_special_type"` // "base"
-	CarType                     string `json:"car_type"` // "models"
+	CarType                     string `json:"car_type"`         // "models"
 	ChargePortType              string `json:"charge_port_type"`
 	EuVehicle                   bool   `json:"eu_vehicle"`
 	ExteriorColor               string `json:"exterior_color"`
@@ -721,6 +721,40 @@ func GetVehicleConfig(client *http.Client, token *Token, id int) (*VehicleConfig
 		return nil, err
 	}
 	return &(vcr.Response), nil
+}
+
+type VehicleDataResponse struct {
+	Response VehicleData
+}
+type VehicleData struct {
+	Vehicle
+	UserId int           `json:"user_id"`
+	Ds     DriveState    `json:"drive_state"`
+	Cls    ClimateState  `json:"climate_state"`
+	Chs    ChargeState   `json:"charge_state"`
+	Gs     GuiSettings   `json:"gui_settings"`
+	Vs     VehicleState  `json:"vehicle_state"`
+	Vc     VehicleConfig `json:"vehicle_config"`
+}
+
+// GetVehicleData
+func GetVehicleData(client *http.Client, token *Token, id int) (*VehicleData, error) {
+	var verbose = false
+	var vdr VehicleDataResponse
+
+	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles/"+strconv.Itoa(id)+"/vehicle_data")
+	if err != nil {
+		return nil, err
+	}
+	if verbose {
+		fmt.Printf("Response: %s\n", vehiclejson)
+	}
+
+	err = json.Unmarshal(vehiclejson, &vdr)
+	if err != nil {
+		return nil, err
+	}
+	return &(vdr.Response), nil
 }
 
 // Mobile Enabled

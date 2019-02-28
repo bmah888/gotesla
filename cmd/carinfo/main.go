@@ -149,5 +149,12 @@ func main() {
 	}
 	fmt.Printf("mobile_enabled: %+v\n", mobileEnabled)
 
+	vehicleData, err := gotesla.GetVehicleData(client, token, idFound)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("vehicle_data: %+v\n", vehicleData)
+
 	return
 }
