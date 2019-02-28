@@ -17,7 +17,6 @@ import (
 	"strconv"
 	"strings"
 	_ "time"
-
 )
 
 func main() {
@@ -52,19 +51,19 @@ func main() {
 		return
 	}
 
-	if (*verbose) {
+	if *verbose {
 		fmt.Printf("%d vehicles retrieved\n", len(*vehicles))
 	}
 
 	// If no Vehicle ID given, so print a list of all the vehicles
-	if (*id == "") {
+	if *id == "" {
 		fmt.Printf("%20s%10s%20s %s\n", "ID", "Model", "VIN", "Name")
 		for i := 0; i < len(*vehicles); i++ {
-			
-			if (*verbose) {
+
+			if *verbose {
 				fmt.Printf("Option codes: %s\n", (*vehicles)[i].OptionCodes)
 			}
-			
+
 			// Parse through option codes to find the vehicle model.
 			// This is just a quick 'n' dirty string search.
 			// In another part of this program we do a more
@@ -78,7 +77,7 @@ func main() {
 			} else if strings.Contains(optionCodes, "MDL3") {
 				model = "Model 3"
 			}
-			
+
 			fmt.Printf("%20d%10s%20s \"%s\"\n", (*vehicles)[i].Id, model, (*vehicles)[i].Vin, (*vehicles)[i].DisplayName)
 		}
 	}
@@ -122,13 +121,33 @@ func main() {
 	}
 	fmt.Printf("drive_state: %+v\n", ds)
 
+	gs, err := gotesla.GetGuiSettings(client, token, idFound)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("gui_settings: %+v\n", gs)
+
+	vs, err := gotesla.GetVehicleState(client, token, idFound)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("vehicle_state: %+v\n", vs)
+
+	vc, err := gotesla.GetVehicleConfig(client, token, idFound)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("vehicle_config: %+v\n", vc)
+
 	mobileEnabled, err := gotesla.GetMobileEnabled(client, token, idFound)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	fmt.Printf("mobile_enabled: %+v\n", mobileEnabled)
-
 
 	return
 }
