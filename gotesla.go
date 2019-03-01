@@ -289,7 +289,9 @@ func GetTesla(client *http.Client, token *Token, endpoint string) ([]byte, error
 		fmt.Printf("Status: %s\n", resp.Status)
 	}
 	switch resp.StatusCode {
-	case http.StatusBadGateway:
+	case http.StatusOK:
+		/* break */
+	default:
 		return nil, fmt.Errorf("%s", http.StatusText(resp.StatusCode))
 	}
 
