@@ -13,6 +13,7 @@ import (
 	"flag"
 	"fmt"
 	"gotesla"
+	"log"
 	"math/rand"
 	"net/http"
 	"time"
@@ -62,7 +63,7 @@ func main() {
 	// Get vehicles list
 	vr, err := gotesla.GetVehicles(client, token)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatalf("GetVehicles: %v\n", err)
 		return
 	}
 
@@ -75,7 +76,7 @@ func main() {
 		Addr: InfluxUrl,
 	})
 	if err != nil {
-		fmt.Println(err)
+		log.Fatalln("NewHTTPClient: %v\n", err)
 	}
 	defer dbClient.Close()
 
@@ -88,8 +89,8 @@ func main() {
 
 			nc, err := gotesla.GetNearbyChargers(client, token, v.Id)
 			if err != nil {
-				fmt.Println(err)
-				return
+				log.Printf("GetNearbyChargers: %v\n", err)
+				continue
 			}
 			timeCongestion := time.Unix(int64(nc.Response.CongestionSyncTimeUtcSecs), 0)
 			timeStamp := time.Unix(int64(nc.Response.Timestamp/1000), 0)
@@ -104,8 +105,8 @@ func main() {
 				Precision: "us",
 			})
 			if err != nil {
-				fmt.Println(err)
-				return
+				log.Printf("NewBatchPoints: %v\n", err)
+				continue
 			}
 
 			// For each Supercharger, make up a data point
@@ -129,8 +130,8 @@ func main() {
 					timeStamp,
 				)
 				if err != nil {
-					fmt.Println(err)
-					return
+					log.Printf("NewPoint: %v\n", err)
+					continue
 				}
 				bp.AddPoint(pt)
 
@@ -144,8 +145,8 @@ func main() {
 			// Write the batch
 			err = dbClient.Write(bp)
 			if err != nil {
-				fmt.Println(err)
-				return
+				log.Println("Write: %v\n", err)
+				continue
 			}
 
 		}

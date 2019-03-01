@@ -283,6 +283,17 @@ func GetTesla(client *http.Client, token *Token, endpoint string) ([]byte, error
 	if err != nil {
 		return nil, err
 	}
+
+	// Try to handle certain types of HTTP status codes
+	if verbose {
+		fmt.Printf("Status: %s\n", resp.Status)
+	}
+	switch resp.StatusCode {
+	case http.StatusBadGateway:
+		return nil, fmt.Errorf("%s", http.StatusText(resp.StatusCode))
+	}
+
+	// If we get here, we can be reasonably (?) assured of a valid body.
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
