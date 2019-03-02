@@ -70,6 +70,16 @@ func main() {
 	flag.BoolVar(&jsonOutput, "json", false, "JSON output")
 
 	// XXX define new flag.Usage() so we can print the valid commands
+	flag.Usage = func() {
+		fmt.Fprintf(flag.CommandLine.Output(), "Usage of %s [flags] COMMAND:\n", os.Args[0])
+		fmt.Fprintf(flag.CommandLine.Output(), "\n")
+		fmt.Fprintf(flag.CommandLine.Output(), "  Where COMMAND is one of:\n")
+		fmt.Fprintf(flag.CommandLine.Output(), "    check   Check stored token for validity\n")
+		fmt.Fprintf(flag.CommandLine.Output(), "    delete  Delete stored token\n")
+		fmt.Fprintf(flag.CommandLine.Output(), "    print   Print stored token\n")
+		fmt.Fprintf(flag.CommandLine.Output(), "\n")
+		flag.PrintDefaults()
+	}
 
 	// Parse command-line arguments
 	flag.Parse()
