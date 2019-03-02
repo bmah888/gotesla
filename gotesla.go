@@ -25,6 +25,7 @@ package gotesla
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -388,13 +389,13 @@ type VehiclesResponse struct {
 
 // GetVehicles performs a vehicles query to retrieve information on all
 // the Tesla vehicles associated with an account.
-func GetVehicles(client *http.Client, token *Token) (VehiclesResponse, error) {
+func GetVehicles(client *http.Client, token *Token) (*Vehicles, error) {
 	var verbose = false
 	var vr VehiclesResponse
 
 	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles")
 	if err != nil {
-		return vr, err
+		return nil, err
 	}
 	if verbose {
 		fmt.Printf("Response: %s\n", vehiclejson)
@@ -402,10 +403,397 @@ func GetVehicles(client *http.Client, token *Token) (VehiclesResponse, error) {
 
 	err = json.Unmarshal(vehiclejson, &vr)
 	if err != nil {
-		return vr, err
+		return nil, err
 	}
 
-	return vr, nil
+	// Check Count to see if it matches the length of Response
+	if len(vr.Response) != vr.Count {
+		return nil, errors.New(fmt.Sprintf("get_vehicles Response length %d != Count %d", len(vr.Response), vr.Count))
+	}
+
+	return &(vr.Response), nil
+}
+
+// Charge State
+type ChargeStateResponse struct {
+	Response ChargeState
+}
+type ChargeState struct {
+	BatteryHeaterOn              bool        `json:"battery_heater_on"`
+	BatteryLevel                 int         `json:"battery_level"`
+	BatteryRange                 float64     `json:"battery_range"`
+	ChargeCurrentRequest         int         `json:"charge_current_request"`
+	ChargeCurrentRequestMax      int         `json:"charge_current_request_max"`
+	ChargeEnableRequest          bool        `json:"charge_enable_request"`
+	ChargeLimitSoc               int         `json:"charge_limit_soc"`
+	ChargeLimitSocMax            int         `json:"charge_limit_soc_max"`
+	ChargeLimitSocMin            int         `json:"charge_limit_soc_min"`
+	ChargeLimitSocStd            int         `json:"charge_limit_soc_std"`
+	ChargeMilesAddedIdeal        float64     `json:"charge_miles_added_ideal"`
+	ChargeMilesAddedRated        float64     `json:"charge_miles_added_rated"`
+	ChargePortColdWeatherMode    bool        `json:"charge_port_cold_weather_mode"`
+	ChargePortDoorOpen           bool        `json:"charge_port_door_open"`
+	ChargePortLatch              string      `json:"charge_port_latch"` // "Engaged", "Disengaged"
+	ChargeRate                   float64     `json:"charge_rate"`
+	ChargeToMaxRange             bool        `json:"charge_to_max_range"`
+	ChargerActualCurrent         int         `json:"charge_actual_current"`
+	ChargerPhases                int         `json:"charge_phases"` // 1?
+	ChargerPilotCurrent          int         `json:"charger_pilot_current"`
+	ChargerPower                 int         `json:"charger_power"`
+	ChargerVoltage               int         `json:"charger_voltage"`
+	ChargingState                string      `json:"charging_state"` // "Stopped", "Starting", "Charging", "Disconnected"
+	ConnChargeCable              string      `json:"conn_charge_cable"`
+	EstBatteryRange              float64     `json:"est_battery_range"`
+	FastChargerBrand             string      `json:"fast_charger_brand"`
+	FastChargerPresent           bool        `json:"fast_charger_present"`
+	FastChargerType              string      `json:"fast_charger_type"`
+	IdealBatteryRange            float64     `json:"ideal_battery_range"`
+	ManagedChargingActive        bool        `json:"managed_charging_active"`
+	ManagedChargingStartTime     interface{} `json:"managed_charging_start_time"`
+	ManagedChargingUserCancelled bool        `json:"managed_charging_user_cancelled"`
+	MaxRangeChargeCounter        int         `json:"max_range_charge_counter"`
+	NotEnoughPowerToHeat         bool        `json:"not_enough_power_to_heat"`
+	ScheduledChargingPending     bool        `json:"scheduled_charging_pending"`
+	ScheduledChargingStartTime   int         `json:"scheduled_charging_start_time"` // seconds
+	TimeToFullCharge             float64     `json:"time_to_full_charge"`           // in hours
+	TimeStamp                    int         `json:"timestamp"`                     // ms
+	TripCharging                 bool        `json:"trip_charging"`
+	UsableBatteryLevel           int         `json:"usable_battery_level"`
+	UserChargeEnableRequest      bool        `json:"user_charge_enable_request"`
+}
+
+// GetChargeState retrieves the state of charge in the battery and various settings
+func GetChargeState(client *http.Client, token *Token, id int) (*ChargeState, error) {
+	var verbose = false
+	var csr ChargeStateResponse
+
+	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles/"+strconv.Itoa(id)+"/data_request/charge_state")
+	if err != nil {
+		return nil, err
+	}
+	if verbose {
+		fmt.Printf("Response: %s\n", vehiclejson)
+	}
+
+	err = json.Unmarshal(vehiclejson, &csr)
+	if err != nil {
+		return nil, err
+	}
+	return &(csr.Response), nil
+}
+
+// Climate State
+type ClimateStateResponse struct {
+	Response ClimateState
+}
+type ClimateState struct {
+	BatteryHeater              bool    `json:"battery_heater"`
+	BatteryHeaterNoPower       bool    `json:"battery_heater_no_power"`
+	DriverTempSetting          float64 `json:"driver_temp_setting"`
+	FanStatus                  int     `json:"fan_status"`
+	InsideTemp                 float64 `json:"inside_temp"`
+	IsAutoConditioningOn       bool    `json:"is_auto_conditioning_on"`
+	IsClimateOn                bool    `json:"is_climate_on"`
+	IsFrontDefrosterOn         bool    `json:"is_front_defroster_on"`
+	IsPreconditioning          bool    `json:"is_preconditioning"`
+	IsRearDefrosterOn          bool    `json:"is_rear_defroster_on"`
+	LeftTempDirection          int     `json:"left_temp_direction"`
+	MaxAvailTemp               float64 `json:"max_avail_temp"`
+	MinAvailTemp               float64 `json:"min_avail_temp"`
+	OutsideTemp                float64 `json:"outside_temp"`
+	PassengerTempSetting       float64 `json:"passenger_temp_setting"`
+	RemoteHeaterControlEnabled bool    `json:"remote_heater_control_enabled"`
+	RightTempDirection         int     `json:"right_temp_direction"`
+	SeatHeaterLeft             int     `json:"seat_heater_left"`
+	SeatHeaterRearCenter       int     `json:"seat_heater_rear_center"`
+	SeatHeaterRearLeft         int     `json:"seat_heater_rear_left"`
+	SeatHeaterRearLeftBack     int     `json:"seat_heater_rear_left_back"`
+	SeatHeaterRearRight        int     `json:"seat_heater_rear_right"`
+	SeatHeaterRearRightBack    int     `json:"seat_heater_rear_right_back"`
+	SeatHeaterRight            int     `json:"seat_heater_right"`
+	SideMirrorHeaters          bool    `json:"side_mirror_heaters"`
+	SmartPreconditioning       bool    `json:"smart_preconditioning"`
+	SteeringWheelHeater        bool    `json:"steering_wheel_heater"`
+	TimeStamp                  int     `json:"timestamp"` // ms
+	WiperBladeHeater           bool    `json:"wiper_blade_heater"`
+}
+
+// GetClimateState returns information on the current internal
+// temperature and climate control system.
+func GetClimateState(client *http.Client, token *Token, id int) (*ClimateState, error) {
+	var verbose = false
+	var clsr ClimateStateResponse
+
+	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles/"+strconv.Itoa(id)+"/data_request/climate_state")
+	if err != nil {
+		return nil, err
+	}
+	if verbose {
+		fmt.Printf("Response: %s\n", vehiclejson)
+	}
+
+	err = json.Unmarshal(vehiclejson, &clsr)
+	if err != nil {
+		return nil, err
+	}
+
+	return &(clsr.Response), nil
+}
+
+// Drive State
+type DriveStateResponse struct {
+	Response DriveState
+}
+type DriveState struct {
+	GpsAsOf                 int         `json:"gps_as_of"`
+	Heading                 int         `json:"heading"`
+	Latitude                float64     `json:"latitude"`
+	Longitude               float64     `json:"longitude"`
+	NativeLatitude          float64     `json:"native_latitude"`
+	NativeLocationSupported int         `json:"native_location_supported"`
+	NativeLongitude         float64     `json:"native_longitude"`
+	NativeType              string      `json:"native_type"`
+	Power                   int         `json:"power"`
+	ShiftState              interface{} `json:"shift_state"`
+	Speed                   interface{} `json:"speed"`
+	TimeStamp               int         `json:"timestamp"` // ms
+}
+
+// GetDriveState returns the driving and position state of the vehicle
+func GetDriveState(client *http.Client, token *Token, id int) (*DriveState, error) {
+	var verbose = false
+	var dsr DriveStateResponse
+
+	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles/"+strconv.Itoa(id)+"/data_request/drive_state")
+	if err != nil {
+		return nil, err
+	}
+	if verbose {
+		fmt.Printf("Response: %s\n", vehiclejson)
+	}
+
+	err = json.Unmarshal(vehiclejson, &dsr)
+	if err != nil {
+		return nil, err
+	}
+
+	return &(dsr.Response), nil
+}
+
+// GUI Settings
+type GuiSettingsResponse struct {
+	Response GuiSettings
+}
+type GuiSettings struct {
+	Gui24HourTime       bool   `json:"gui_24_hour_time"`
+	GuiChargeRateUnits  string `json:"gui_charge_rate_units"`
+	GuiDistanceUnits    string `json:"gui_distance_units"`
+	GuiRangeDisplay     string `json:"gui_range_display"`
+	GuiTemperatureUnits string `json:"gui_temperature_units"`
+	TimeStamp           int    `json:"timestamp"` // ms
+}
+
+// GetGuiSettings returns various information about the GUI settings
+// of the car, such as unit format and range display
+func GetGuiSettings(client *http.Client, token *Token, id int) (*GuiSettings, error) {
+	var verbose = false
+	var gsr GuiSettingsResponse
+
+	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles/"+strconv.Itoa(id)+"/data_request/gui_settings")
+	if err != nil {
+		return nil, err
+	}
+	if verbose {
+		fmt.Printf("Response: %s\n", vehiclejson)
+	}
+
+	err = json.Unmarshal(vehiclejson, &gsr)
+	if err != nil {
+		return nil, err
+	}
+	return &(gsr.Response), nil
+}
+
+// Vehicle State
+type VehicleStateResponse struct {
+	Response VehicleState
+}
+type VehicleState struct {
+	ApiVersion              int                        `json:"api_version"`
+	AutoparkStateV2         string                     `json:"autopark_state_v2"`
+	AutoparkStyle           string                     `json:"autopark_style"`
+	CalendarSupported       bool                       `json:"calendar_supported"`
+	CarVersion              string                     `json:"car_version"`
+	CenterDisplayState      int                        `json:"center_display_state"`
+	Df                      int                        `json:"df"`
+	Dr                      int                        `json:"dr"`
+	Ft                      int                        `json:"ft"`
+	HomelinkNearby          bool                       `json:"homelink_nearby"`
+	IsUserPresent           bool                       `json:"is_user_present"`
+	LastAutoparkError       string                     `json:"last_autopark_error"`
+	Locked                  bool                       `json:"locked"`
+	MediaState              VehicleStateMediaState     `json:"media_state"`
+	NotificationsSupported  bool                       `json:"notifications_supported"`
+	Odometer                float64                    `json:"odometer"`
+	ParsedCalendarSupported bool                       `json:"parsed_calendar_supported"`
+	Pf                      int                        `json:"pf"`
+	Pr                      int                        `json:"pr"`
+	RemoteStart             bool                       `json:"remote_start"`
+	RemoteStartSupported    bool                       `json:"remote_start_started"`
+	Rt                      int                        `json:"rt"`
+	SoftwareUpdate          VehicleStateSoftwareUpdate `json:"software_update"`
+	SpeedLimitMode          VehicleStateSpeedLimitMode `json:"speed_limit_mode"`
+	SunRoofPercentOpen      int                        `json:"sun_roof_percent_open"`
+	SunRoofState            string                     `json:"sun_roof_state"`
+	TimeStamp               int                        `json:"timestamp"` // ms
+	ValetMode               bool                       `json:"valet_mode"`
+	ValetPinNeeded          bool                       `json:"valet_pin_needed"`
+	VehicleName             string                     `json:"vehicle_name"`
+}
+type VehicleStateMediaState struct {
+	RemoteControlEnabled bool `json:"remote_control_enabled"`
+}
+type VehicleStateSoftwareUpdate struct {
+	ExpectedDurationSec int    `json:"expected_duration_sec"`
+	Status              string `json:"status"`
+}
+type VehicleStateSpeedLimitMode struct {
+	Active          bool    `json:"active"`
+	CurrentLimitMph float64 `json:"current_limit_mph"`
+	MaxLimitMph     int     `json:"max_limit_mph"`
+	MinLimitMph     int     `json:"min_limit_mph"`
+	PinCodeSet      bool    `json:"pin_code_set"`
+}
+
+// GetVehicleState returns the vehicle's physical state, such as which
+// doors are open.
+func GetVehicleState(client *http.Client, token *Token, id int) (*VehicleState, error) {
+	var verbose = false
+	var vsr VehicleStateResponse
+
+	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles/"+strconv.Itoa(id)+"/data_request/vehicle_state")
+	if err != nil {
+		return nil, err
+	}
+	if verbose {
+		fmt.Printf("Response: %s\n", vehiclejson)
+	}
+
+	err = json.Unmarshal(vehiclejson, &vsr)
+	if err != nil {
+		return nil, err
+	}
+	return &(vsr.Response), nil
+}
+
+// Vehicle Config
+type VehicleConfigResponse struct {
+	Response VehicleConfig
+}
+type VehicleConfig struct {
+	CanAcceptNavigationRequests bool   `json:"can_accept_navigation_requests"`
+	CanActuateTrunks            bool   `json:"can_actuate_trunks"`
+	CarSpecialType              string `json:"car_special_type"` // "base"
+	CarType                     string `json:"car_type"`         // "models"
+	ChargePortType              string `json:"charge_port_type"`
+	EuVehicle                   bool   `json:"eu_vehicle"`
+	ExteriorColor               string `json:"exterior_color"`
+	HasAirSuspension            bool   `json:"has_air_suspension"`
+	HasLudicrousMode            bool   `json:"has_ludicrous_mode"`
+	MotorizedChargePort         bool   `json:"motorized_charge_port"`
+	PerfConfig                  string `json:"perf_config"`
+	Plg                         bool   `json:"plg"`
+	RearSeatHeaters             int    `json:"rear_seat_heaters"`
+	RearSeatType                int    `json:"rear_seat_type"`
+	Rhd                         bool   `json:"rhd"`
+	RoofColor                   string `json:"roof_color"` // "Colored"
+	SeatType                    int    `json:"seat_type"`
+	SpoilerType                 string `json:"spoiler_type"`
+	SunRoofInstalled            int    `json:"sun_roof_installed"`
+	ThirdRowSeats               string `json:"third_row_seats"`
+	TimeStamp                   int    `json:"timestamp"` // ms
+	TrimBadging                 string `json:"trim_badging"`
+	WheelType                   string `json:"wheel_type"`
+}
+
+// GetVehicleConfig
+func GetVehicleConfig(client *http.Client, token *Token, id int) (*VehicleConfig, error) {
+	var verbose = false
+	var vcr VehicleConfigResponse
+
+	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles/"+strconv.Itoa(id)+"/data_request/vehicle_config")
+	if err != nil {
+		return nil, err
+	}
+	if verbose {
+		fmt.Printf("Response: %s\n", vehiclejson)
+	}
+
+	err = json.Unmarshal(vehiclejson, &vcr)
+	if err != nil {
+		return nil, err
+	}
+	return &(vcr.Response), nil
+}
+
+type VehicleDataResponse struct {
+	Response VehicleData
+}
+type VehicleData struct {
+	Vehicle
+	UserId int           `json:"user_id"`
+	Ds     DriveState    `json:"drive_state"`
+	Cls    ClimateState  `json:"climate_state"`
+	Chs    ChargeState   `json:"charge_state"`
+	Gs     GuiSettings   `json:"gui_settings"`
+	Vs     VehicleState  `json:"vehicle_state"`
+	Vc     VehicleConfig `json:"vehicle_config"`
+}
+
+// GetVehicleData
+func GetVehicleData(client *http.Client, token *Token, id int) (*VehicleData, error) {
+	var verbose = false
+	var vdr VehicleDataResponse
+
+	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles/"+strconv.Itoa(id)+"/vehicle_data")
+	if err != nil {
+		return nil, err
+	}
+	if verbose {
+		fmt.Printf("Response: %s\n", vehiclejson)
+	}
+
+	err = json.Unmarshal(vehiclejson, &vdr)
+	if err != nil {
+		return nil, err
+	}
+	return &(vdr.Response), nil
+}
+
+// Mobile Enabled
+type MobileEnabledResponse struct {
+	Response bool `json:"response"`
+}
+
+// GetMobileEnabled returns whether mobile access is enabled
+func GetMobileEnabled(client *http.Client, token *Token, id int) (bool, error) {
+	var verbose = false
+	var mer MobileEnabledResponse
+
+	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles/"+strconv.Itoa(id)+"/mobile_enabled")
+	if err != nil {
+		return false, err
+	}
+	if verbose {
+		fmt.Printf("Response: %s\n", vehiclejson)
+	}
+
+	err = json.Unmarshal(vehiclejson, &mer)
+	if err != nil {
+		return false, err
+	}
+
+	return mer.Response, nil
 }
 
 // Nearby Charging Sites
