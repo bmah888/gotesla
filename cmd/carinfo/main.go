@@ -22,13 +22,14 @@ import (
 type OptionDecode struct {
 	OptionCode, Decode, OptionClass string
 }
-var decoder = [...]OptionDecode {
+
+var decoder = [...]OptionDecode{
 	{OptionCode: "MDLS", Decode: "Model S", OptionClass: "model"},
 	{OptionCode: "MS03", Decode: "Model S", OptionClass: "model"},
 	{OptionCode: "MS04", Decode: "Model S", OptionClass: "model"},
 	{OptionCode: "MDLX", Decode: "Model X", OptionClass: "model"},
 	{OptionCode: "MDL3", Decode: "Model 3", OptionClass: "model"},
-	
+
 	{OptionCode: "APH0", Decode: "Autopilot 2.0 Hardware", OptionClass: "autopilothw"},
 	{OptionCode: "APH2", Decode: "Autopilot 2.0 Hardware", OptionClass: "autopilothw"},
 	{OptionCode: "APH3", Decode: "Autopilot 2.5 Hardware", OptionClass: "autopilothw"},
@@ -75,7 +76,7 @@ var decoder = [...]OptionDecode {
 func printOptionCodes(codeString string) {
 	codeArray := strings.Split(codeString, ",")
 
-/*	decodes := make (map[string]OptionDecode) */
+	/*	decodes := make (map[string]OptionDecode) */
 
 	type optionDecode struct {
 		Decode, OptionCode string
@@ -91,8 +92,8 @@ func printOptionCodes(codeString string) {
 		}
 	}
 
-/*	fmt.Printf("%+v\n", decodes) */
-	
+	/*	fmt.Printf("%+v\n", decodes) */
+
 }
 
 func main() {
@@ -176,49 +177,49 @@ func main() {
 		fmt.Printf("Found id %d\n", idFound)
 	}
 
-/*
-	chs, err := gotesla.GetChargeState(client, token, idFound)
-	if err != nil {
-		fmt.Printf("GetChargeState: %s\n", err)
-		return
-	}
-	fmt.Printf("charge_state: %+v\n", chs)
+	/*
+		chs, err := gotesla.GetChargeState(client, token, idFound)
+		if err != nil {
+			fmt.Printf("GetChargeState: %s\n", err)
+			return
+		}
+		fmt.Printf("charge_state: %+v\n", chs)
 
-	cls, err := gotesla.GetClimateState(client, token, idFound)
-	if err != nil {
-		fmt.Printf("GetClimateState: %s\n", err)
-		return
-	}
-	fmt.Printf("climate_state: %+v\n", cls)
+		cls, err := gotesla.GetClimateState(client, token, idFound)
+		if err != nil {
+			fmt.Printf("GetClimateState: %s\n", err)
+			return
+		}
+		fmt.Printf("climate_state: %+v\n", cls)
 
-	ds, err := gotesla.GetDriveState(client, token, idFound)
-	if err != nil {
-		fmt.Printf("GetDriveState: %s\n", err)
-		return
-	}
-	fmt.Printf("drive_state: %+v\n", ds)
+		ds, err := gotesla.GetDriveState(client, token, idFound)
+		if err != nil {
+			fmt.Printf("GetDriveState: %s\n", err)
+			return
+		}
+		fmt.Printf("drive_state: %+v\n", ds)
 
-	gs, err := gotesla.GetGuiSettings(client, token, idFound)
-	if err != nil {
-		fmt.Printf("GetGuiSettings: %s\n", err)
-		return
-	}
-	fmt.Printf("gui_settings: %+v\n", gs)
+		gs, err := gotesla.GetGuiSettings(client, token, idFound)
+		if err != nil {
+			fmt.Printf("GetGuiSettings: %s\n", err)
+			return
+		}
+		fmt.Printf("gui_settings: %+v\n", gs)
 
-	vs, err := gotesla.GetVehicleState(client, token, idFound)
-	if err != nil {
-		fmt.Printf("GetVehicleState: %s\n", err)
-		return
-	}
-	fmt.Printf("vehicle_state: %+v\n", vs)
+		vs, err := gotesla.GetVehicleState(client, token, idFound)
+		if err != nil {
+			fmt.Printf("GetVehicleState: %s\n", err)
+			return
+		}
+		fmt.Printf("vehicle_state: %+v\n", vs)
 
-	vc, err := gotesla.GetVehicleConfig(client, token, idFound)
-	if err != nil {
-		fmt.Printf("GetVehicleConfig: %s\n", err)
-		return
-	}
-	fmt.Printf("vehicle_config: %+v\n", vc)
-*/
+		vc, err := gotesla.GetVehicleConfig(client, token, idFound)
+		if err != nil {
+			fmt.Printf("GetVehicleConfig: %s\n", err)
+			return
+		}
+		fmt.Printf("vehicle_config: %+v\n", vc)
+	*/
 	mobileEnabled, err := gotesla.GetMobileEnabled(client, token, idFound)
 	if err != nil {
 		fmt.Println("GetMobileEnabled: %s\n", err)
