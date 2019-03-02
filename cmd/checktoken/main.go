@@ -69,7 +69,7 @@ func main() {
 	flag.BoolVar(&verbose, "verbose", false, "Verbose output")
 	flag.BoolVar(&jsonOutput, "json", false, "JSON output")
 
-	// XXX define new flag.Usage() so we can print the valid commands
+	// Define new flag.Usage() so we can print the valid commands
 	flag.Usage = func() {
 		fmt.Fprintf(flag.CommandLine.Output(), "Usage of %s [flags] COMMAND:\n", os.Args[0])
 		fmt.Fprintf(flag.CommandLine.Output(), "\n")
