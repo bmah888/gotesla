@@ -233,7 +233,7 @@ func main() {
 		}
 
 		// Write data points in the batch
-//		err = dbClient.Write(bp)
+		err = dbClient.Write(bp)
 		if err != nil {
 			log.Println("Write: %v\n", err)
 			continue
