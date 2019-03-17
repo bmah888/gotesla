@@ -22,6 +22,8 @@ import (
 
 // Tesla API parameters
 
+// A Meter contains the state of one of the (four?) energy meters
+// attached to the gateway.
 type Meter struct {
 	LastCommunicationTime string  `json:"last_communication_time"`
 	InstantPower          float64 `json:"instant_power"`
@@ -38,6 +40,10 @@ type Meter struct {
 	Timeout               int     `json:"timeout"`
 }
 
+// A MeterAggregate contains several Meters.
+// Four of them correspond
+// to the four energy sources in the Tesla app (Site, Battery, Load,
+// and Solar).  The remaining three are unknown at this time.
 type MeterAggregate struct {
 	Site      Meter
 	Battery   Meter
@@ -48,6 +54,9 @@ type MeterAggregate struct {
 	Generator Meter
 }
 
+// GetMeterAggregate retrieves a MeterAggregate from a local
+// Powerwall gateway.  No authentication is required for this
+// call.
 func GetMeterAggregate(client *http.Client, hostname string) (*MeterAggregate, error) {
 	var verbose bool = false
 	var ma MeterAggregate
@@ -70,10 +79,15 @@ func GetMeterAggregate(client *http.Client, hostname string) (*MeterAggregate, e
 	return &ma, nil
 }
 
+// A Soe structure gives the current state of energy of the Powerwall
+// batteries (total, as a value between 0-100).
 type Soe struct {
 	Percentage float64 `json:"percentage"`
 }
 
+// GetSoe returns the state of energy of the Powerwall batteries.
+// Unlike some other calls in this library, it doesn't return the
+// structure, just a float64 value (and error if applicable).
 func GetSoe(client *http.Client, hostname string) (float64, error) {
 	var verbose bool = false
 	var soe Soe
@@ -96,6 +110,8 @@ func GetSoe(client *http.Client, hostname string) (float64, error) {
 	return soe.Percentage, nil
 }
 
+// GridStatusResponse is a structure that gives the current grid
+// status as a string, as defined in the following constants.
 type GridStatusResponse struct {
 	GridStatus string `json:"grid_status"`
 }
@@ -110,6 +126,9 @@ const (
 	GridStatusUp
 )
 
+// GetGridStatus returns the grid status as a GridStatus value.
+// We do it this way in order to avoid the caller needing to parse
+// the response strings.
 func GetGridStatus(client *http.Client, hostname string) (GridStatus, error) {
 	var verbose bool = false
 	var gsr GridStatusResponse
