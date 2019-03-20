@@ -35,15 +35,15 @@ func makeMeterPoint(measurement string, meterName string, meter *gotesla.Meter) 
 	tags := map[string]string{
 		"meter": meterName,
 	}
-	fields := map[string]interface{} {
-		"instant_power": meter.InstantPower,
-		"instant_power_min0": math.Min(0.0, meter.InstantPower),
-		"instant_power_max0": math.Max(0.0, meter.InstantPower),
-		"frequency": meter.Frequency,
-		"energy_exported": meter.EnergyExported,
-		"energy_imported": meter.EnergyImported,
+	fields := map[string]interface{}{
+		"instant_power":           meter.InstantPower,
+		"instant_power_min0":      math.Min(0.0, meter.InstantPower),
+		"instant_power_max0":      math.Max(0.0, meter.InstantPower),
+		"frequency":               meter.Frequency,
+		"energy_exported":         meter.EnergyExported,
+		"energy_imported":         meter.EnergyImported,
 		"instant_average_voltage": meter.InstantAverageVoltage,
-		"instant_total_current": meter.InstantTotalCurrent,
+		"instant_total_current":   meter.InstantTotalCurrent,
 	}
 	timestamp, err := time.Parse(time.RFC3339Nano, meter.LastCommunicationTime)
 	if err != nil {
@@ -156,7 +156,7 @@ func main() {
 		// Take a timestamp for any data that's not already
 		// timestamped
 		now := time.Now().Round(0)
-		
+
 		// Batch of data points.  We'll have one point each for
 		// the grid (site), Powerwall (battery), solar,
 		// and house (load).  Each of those will be timestamped
@@ -171,7 +171,7 @@ func main() {
 			log.Printf("NewBatchPoints: %v\n", err)
 			continue
 		}
-		
+
 		// Use a helper function to create the various points
 		p1, err := makeMeterPoint(InfluxMeasurement, "site", &(ma.Site))
 		if err != nil {
@@ -215,10 +215,9 @@ func main() {
 
 		// Create the point with SOE and grid status
 		{
-			tags := map[string]string{
-			}
-			fields := map[string]interface{} {
-				"soe": soe,
+			tags := map[string]string{}
+			fields := map[string]interface{}{
+				"soe":         soe,
 				"grid_status": gs,
 			}
 
@@ -241,8 +240,7 @@ func main() {
 			log.Println("Write: %v\n", err)
 			continue
 		}
-		
-		
+
 		// Sleep for awhile...
 		if verbose {
 			fmt.Printf("Sleeping for %f\n\n", pollTime)
