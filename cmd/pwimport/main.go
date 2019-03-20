@@ -219,7 +219,7 @@ func main() {
 			tags := map[string]string{}
 			fields := map[string]interface{}{
 				"soe":         soe,
-				"grid_status": gs,
+				"grid_status": int(gs),
 			}
 
 			pt, err := influxClient.NewPoint(
