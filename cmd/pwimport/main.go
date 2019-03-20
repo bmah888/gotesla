@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"gotesla"
 	"log"
+	"math"
 	"math/rand"
 	"net/http"
 	"time"
@@ -36,6 +37,8 @@ func makeMeterPoint(measurement string, meterName string, meter *gotesla.Meter) 
 	}
 	fields := map[string]interface{} {
 		"instant_power": meter.InstantPower,
+		"instant_power_min0": math.Min(0.0, meter.InstantPower),
+		"instant_power_max0": math.Max(0.0, meter.InstantPower),
 		"frequency": meter.Frequency,
 		"energy_exported": meter.EnergyExported,
 		"energy_imported": meter.EnergyImported,
