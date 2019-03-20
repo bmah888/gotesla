@@ -146,7 +146,7 @@ func main() {
 		// integer (see the declaration of GridStatus).
 		gs, err := gotesla.GetGridStatus(client, hostname)
 		if err != nil {
-			log.Printf("GetSoe: %v\n", err)
+			log.Printf("GetGridStatus: %v\n", err)
 			continue
 		}
 		if verbose {
