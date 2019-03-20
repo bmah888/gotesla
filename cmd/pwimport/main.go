@@ -142,8 +142,9 @@ func main() {
 		}
 
 		// Get the grid status
-		// We define that iwthin the gotesla package as an
-		// integer (see the declaration of GridStatus).
+		// We define that within the gotesla package as a
+		// scalar (see the declaration of GridStatus), but note
+		// that it needs to be converted to an int eventually.
 		gs, err := gotesla.GetGridStatus(client, hostname)
 		if err != nil {
 			log.Printf("GetGridStatus: %v\n", err)
