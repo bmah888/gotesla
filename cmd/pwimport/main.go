@@ -36,14 +36,14 @@ func makeMeterPoint(measurement string, meterName string, meter *gotesla.Meter) 
 		"meter": meterName,
 	}
 	fields := map[string]interface{}{
-		"instant_power":           meter.InstantPower,
-		"instant_power_min0":      math.Min(0.0, meter.InstantPower),
-		"instant_power_max0":      math.Max(0.0, meter.InstantPower),
+		"instant_power":           int(meter.InstantPower),
+		"instant_power_min0":      int(math.Min(0.0, meter.InstantPower)),
+		"instant_power_max0":      int(math.Max(0.0, meter.InstantPower)),
 		"frequency":               meter.Frequency,
-		"energy_exported":         meter.EnergyExported,
-		"energy_imported":         meter.EnergyImported,
-		"instant_average_voltage": meter.InstantAverageVoltage,
-		"instant_total_current":   meter.InstantTotalCurrent,
+		"energy_exported":         int(meter.EnergyExported),
+		"energy_imported":         int(meter.EnergyImported),
+		"instant_average_voltage": int(meter.InstantAverageVoltage),
+		"instant_total_current":   int(meter.InstantTotalCurrent),
 	}
 	timestamp, err := time.Parse(time.RFC3339Nano, meter.LastCommunicationTime)
 	if err != nil {
