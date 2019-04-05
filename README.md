@@ -21,7 +21,7 @@ makes this code available on an "as-is" basis, and does not promise
 any support whatsoever.
 
 Crowd-sourced, reverse-engineered information on the Tesla API has
-been obtained from (https://tesla-api.timdorr.com/) and related
+been obtained from (https://tesla-api.timdorr.com/), (https://github.com/vloschiavo/powerwall2/), and related
 sources.  The author acknowledges and greatly appreciates the efforts
 of those who have contributed to this effort.
 
@@ -45,6 +45,14 @@ Imports Supercharger stall utilization data to an
 timeseries database.  The intended use case is to be able to visualize
 Supercharger stall use over time in a system such as
 [Grafana](https://grafana.com/).
+
+pwimport
+--------
+
+Imports Powerwall 2 power usage data (retrieved via direct access to a
+Powerwall gateway on the local network) into an
+[InfluxDB](https://www.influxdata.com/time-series-platform/influxdb/)
+timeseries database.  Similar to `scimport` above.
 
 Copyright
 ---------
