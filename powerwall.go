@@ -9,15 +9,10 @@
 package gotesla
 
 import (
-//	"bytes"
 	"encoding/json"
-//	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-//	"os"
-//	"strconv"
-//	"time"
 )
 
 // Tesla API parameters
@@ -115,10 +110,13 @@ func GetSoe(client *http.Client, hostname string) (float64, error) {
 type GridStatusResponse struct {
 	GridStatus string `json:"grid_status"`
 }
+
 const gridStatusUpString string = "SystemGridConnected"
 const gridStatusDownString string = "SystemIslandedActive"
 const gridStatusTransitionString string = "SystemTransitionToGrid"
+
 type GridStatus int
+
 const (
 	GridStatusUnknown GridStatus = iota
 	GridStatusDown
