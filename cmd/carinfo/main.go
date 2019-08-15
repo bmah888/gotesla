@@ -145,8 +145,8 @@ func main() {
 			// This is just a quick 'n' dirty string search.
 			// In another part of this program we do a more
 			// thorough job of analyzing the option codes.
-			var model string = "Unknown"
-			var optionCodes string = (*vehicles)[i].OptionCodes
+			var model = "Unknown"
+			var optionCodes = (*vehicles)[i].OptionCodes
 			if strings.Contains(optionCodes, "MDLS") || strings.Contains(optionCodes, "MS04") {
 				model = "Model S"
 			} else if strings.Contains(optionCodes, "MDLX") {
@@ -160,7 +160,7 @@ func main() {
 	}
 
 	// Try to figure out the actual ID
-	var idFound int = 0
+	var idFound int
 	iParsed, err := strconv.Atoi(*id)
 	for i := 0; i < len(*vehicles); i++ {
 		if (*vehicles)[i].Id == iParsed || (*vehicles)[i].Vin == *id || (*vehicles)[i].DisplayName == *id {

@@ -18,7 +18,7 @@ import (
 )
 
 func main() {
-	var verbose bool = false
+	var verbose = false
 
 	// Command-line arguments
 	var email = flag.String("email", "", "MyTesla email address")

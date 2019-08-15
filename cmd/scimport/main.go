@@ -27,7 +27,7 @@ var InfluxDb string
 var InfluxMeasurement string
 
 func main() {
-	var verbose bool = false
+	var verbose = false
 
 	// Seed random number generator, for semi-random polling interval
 	rand.Seed(time.Now().UTC().UnixNano())

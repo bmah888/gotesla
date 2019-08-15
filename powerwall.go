@@ -53,7 +53,7 @@ type MeterAggregate struct {
 // Powerwall gateway.  No authentication is required for this
 // call.
 func GetMeterAggregate(client *http.Client, hostname string) (*MeterAggregate, error) {
-	var verbose bool = false
+	var verbose = false
 	var ma MeterAggregate
 
 	body, err := GetPowerwall(client, hostname, "/api/meters/aggregates")
@@ -84,7 +84,7 @@ type Soe struct {
 // Unlike some other calls in this library, it doesn't return the
 // structure, just a float64 value (and error if applicable).
 func GetSoe(client *http.Client, hostname string) (float64, error) {
-	var verbose bool = false
+	var verbose = false
 	var soe Soe
 
 	body, err := GetPowerwall(client, hostname, "/api/system_status/soe")
@@ -128,7 +128,7 @@ const (
 // We do it this way in order to avoid the caller needing to parse
 // the response strings.
 func GetGridStatus(client *http.Client, hostname string) (GridStatus, error) {
-	var verbose bool = false
+	var verbose = false
 	var gsr GridStatusResponse
 
 	body, err := GetPowerwall(client, hostname, "/api/system_status/grid_status")
@@ -146,7 +146,7 @@ func GetGridStatus(client *http.Client, hostname string) (GridStatus, error) {
 		return GridStatusUnknown, err
 	}
 
-	var gs GridStatus = GridStatusUnknown
+	var gs = GridStatusUnknown
 	switch gsr.GridStatus {
 	case gridStatusUpString:
 		gs = GridStatusUp
@@ -163,7 +163,7 @@ func GetGridStatus(client *http.Client, hostname string) (GridStatus, error) {
 // It doesn't do authentication yet.
 func GetPowerwall(client *http.Client, hostname string, endpoint string) ([]byte, error) {
 
-	var verbose bool = false
+	var verbose = false
 
 	// Figure out the correct endpoint
 	var url = "https://" + hostname + endpoint

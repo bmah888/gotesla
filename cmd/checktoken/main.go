@@ -15,7 +15,7 @@ import (
 	"os"
 )
 
-var jsonOutput bool = false
+var jsonOutput = false
 
 // Return true if the cached token is valid, false otherwise
 func checkCached() bool {
@@ -63,7 +63,7 @@ func deleteCached() {
 }
 
 func main() {
-	var verbose bool = false
+	var verbose = false
 
 	// Command-line arguments
 	flag.BoolVar(&verbose, "verbose", false, "Verbose output")
