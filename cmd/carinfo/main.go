@@ -222,7 +222,7 @@ func main() {
 	*/
 	mobileEnabled, err := gotesla.GetMobileEnabled(client, token, idFound)
 	if err != nil {
-		fmt.Println("GetMobileEnabled: %s\n", err)
+		fmt.Printf("GetMobileEnabled: %s\n", err)
 		return
 	}
 	if *verbose {
@@ -231,7 +231,7 @@ func main() {
 
 	vehicleData, err := gotesla.GetVehicleData(client, token, idFound)
 	if err != nil {
-		fmt.Println("GetVehicleData: %s\n", err)
+		fmt.Printf("GetVehicleData: %s\n", err)
 		return
 	}
 	if *verbose {

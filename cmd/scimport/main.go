@@ -76,7 +76,7 @@ func main() {
 		Addr: InfluxUrl,
 	})
 	if err != nil {
-		log.Fatalln("NewHTTPClient: %v\n", err)
+		log.Fatalf("NewHTTPClient: %v\n", err)
 	}
 	defer dbClient.Close()
 
@@ -145,7 +145,7 @@ func main() {
 			// Write the batch
 			err = dbClient.Write(bp)
 			if err != nil {
-				log.Println("Write: %v\n", err)
+				log.Printf("Write: %v\n", err)
 				continue
 			}
 

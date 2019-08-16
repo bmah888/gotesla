@@ -25,7 +25,6 @@ package gotesla
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -408,7 +407,7 @@ func GetVehicles(client *http.Client, token *Token) (*Vehicles, error) {
 
 	// Check Count to see if it matches the length of Response
 	if len(vr.Response) != vr.Count {
-		return nil, errors.New(fmt.Sprintf("get_vehicles Response length %d != Count %d", len(vr.Response), vr.Count))
+		return nil, fmt.Errorf("get_vehicles Response length %d != Count %d", len(vr.Response), vr.Count)
 	}
 
 	return &(vr.Response), nil
