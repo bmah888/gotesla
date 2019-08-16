@@ -19,6 +19,7 @@ import (
 	_ "time"
 )
 
+// OptionDecode shows how to decode a single element of the options string.
 type OptionDecode struct {
 	OptionCode, Decode, OptionClass string
 }

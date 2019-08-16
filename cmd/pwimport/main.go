@@ -22,9 +22,13 @@ import (
 	influxClient "github.com/influxdata/influxdb1-client/v2" // too many things called "client"
 )
 
-// InfluxDB parameters
+// InfluxUrl is the URL to the InfluxDB server
 var InfluxUrl string
+
+// InfluxDb is the database name
 var InfluxDb string
+
+// InfluxMeasurement is the name of the InfluxDB measurement
 var InfluxMeasurement string
 
 var hostname string

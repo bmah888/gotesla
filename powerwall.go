@@ -115,8 +115,10 @@ const gridStatusUpString string = "SystemGridConnected"
 const gridStatusDownString string = "SystemIslandedActive"
 const gridStatusTransitionString string = "SystemTransitionToGrid"
 
+// GridStatus tracks the status of the grid connection to the house
 type GridStatus int
 
+// GridStatus values
 const (
 	GridStatusUnknown GridStatus = iota
 	GridStatusDown

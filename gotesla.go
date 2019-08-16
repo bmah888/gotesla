@@ -34,14 +34,21 @@ import (
 )
 
 // Tesla API parameters
+
+// BaseUrl is the leading part of the API URL.  It is unlikely to ever change.
 var BaseUrl = "https://owner-api.teslamotors.com"
+
+// UserAgent is passed in HTTP requests to the Tesla API.
+// This appears to be a mandatory parameter; the API will not work without
+// some value being passed here.
 var UserAgent = "org.kitchenlab.gotesla"
 var teslaClientId = "e4a9949fcfa04068f59abb5a658f2bac0a3428e4652315490b659d5ab3f35a9e"
 var teslaClientSecret = "c75f14bbadc8bee3a7594412c31416f8300256d7668ea7e6e7f06727bfb9d220"
 
-// Place to cache token credentials
-// This is pretty UNIX-specific
+// TokenCachePath is the location (UNIX specific?) to cache API credentials.
 var TokenCachePath = os.Getenv("HOME") + "/.gotesla.cache"
+
+// TokenCachePathNewSuffix is the suffix to add to a new cache file when updating.
 var TokenCachePathNewSuffix = ".new"
 
 //
@@ -413,10 +420,12 @@ func GetVehicles(client *http.Client, token *Token) (*Vehicles, error) {
 	return &(vr.Response), nil
 }
 
-// Charge State
+// ChargeStateResponse is the return from a charge_state call
 type ChargeStateResponse struct {
 	Response ChargeState
 }
+
+// ChargeState is the actual charge_state data
 type ChargeState struct {
 	BatteryHeaterOn              bool        `json:"battery_heater_on"`
 	BatteryLevel                 int         `json:"battery_level"`
@@ -481,10 +490,12 @@ func GetChargeState(client *http.Client, token *Token, id int) (*ChargeState, er
 	return &(csr.Response), nil
 }
 
-// Climate State
+// ClimateStateResponse encapsulates a ClimateState object
 type ClimateStateResponse struct {
 	Response ClimateState
 }
+
+// ClimateState returns the state of the climate control
 type ClimateState struct {
 	BatteryHeater              bool    `json:"battery_heater"`
 	BatteryHeaterNoPower       bool    `json:"battery_heater_no_power"`
@@ -539,10 +550,13 @@ func GetClimateState(client *http.Client, token *Token, id int) (*ClimateState, 
 	return &(clsr.Response), nil
 }
 
-// Drive State
+// DriveStateResponse encapsulates a DriveState object.
 type DriveStateResponse struct {
 	Response DriveState
 }
+
+// DriveState is the result of the drive_state call, and includes information
+// about vehicle position and speed
 type DriveState struct {
 	GpsAsOf                 int         `json:"gps_as_of"`
 	Heading                 int         `json:"heading"`
@@ -579,10 +593,12 @@ func GetDriveState(client *http.Client, token *Token, id int) (*DriveState, erro
 	return &(dsr.Response), nil
 }
 
-// GUI Settings
+// GuiSettingsResponse encapsulates a GuiSettings object
 type GuiSettingsResponse struct {
 	Response GuiSettings
 }
+
+// GuiSettings return a number of settings regarding the GUI on the CID
 type GuiSettings struct {
 	Gui24HourTime       bool   `json:"gui_24_hour_time"`
 	GuiChargeRateUnits  string `json:"gui_charge_rate_units"`
@@ -613,10 +629,12 @@ func GetGuiSettings(client *http.Client, token *Token, id int) (*GuiSettings, er
 	return &(gsr.Response), nil
 }
 
-// Vehicle State
+// VehicleStateResponse encapsulates a VehicleState object
 type VehicleStateResponse struct {
 	Response VehicleState
 }
+
+// VehicleState is the return value from a vehicle_state call
 type VehicleState struct {
 	ApiVersion              int                        `json:"api_version"`
 	AutoparkStateV2         string                     `json:"autopark_state_v2"`
@@ -649,13 +667,19 @@ type VehicleState struct {
 	ValetPinNeeded          bool                       `json:"valet_pin_needed"`
 	VehicleName             string                     `json:"vehicle_name"`
 }
+
+// A VehicleStateMediaState returns the state of media control
 type VehicleStateMediaState struct {
 	RemoteControlEnabled bool `json:"remote_control_enabled"`
 }
+
+// A VehicleStateSoftwareUpdate returns information on pending software updates
 type VehicleStateSoftwareUpdate struct {
 	ExpectedDurationSec int    `json:"expected_duration_sec"`
 	Status              string `json:"status"`
 }
+
+// A VehicleStateSpeedLimitMode returns the speed limiting parameters
 type VehicleStateSpeedLimitMode struct {
 	Active          bool    `json:"active"`
 	CurrentLimitMph float64 `json:"current_limit_mph"`
@@ -685,10 +709,12 @@ func GetVehicleState(client *http.Client, token *Token, id int) (*VehicleState, 
 	return &(vsr.Response), nil
 }
 
-// Vehicle Config
+// VehicleConfigResponse encapsulates a VehicleConfig
 type VehicleConfigResponse struct {
 	Response VehicleConfig
 }
+
+// VehicleConfig is the return data from a vehicle_config call
 type VehicleConfig struct {
 	CanAcceptNavigationRequests bool   `json:"can_accept_navigation_requests"`
 	CanActuateTrunks            bool   `json:"can_actuate_trunks"`
@@ -715,7 +741,7 @@ type VehicleConfig struct {
 	WheelType                   string `json:"wheel_type"`
 }
 
-// GetVehicleConfig
+// GetVehicleConfig performs a vehicle_config call
 func GetVehicleConfig(client *http.Client, token *Token, id int) (*VehicleConfig, error) {
 	var verbose = false
 	var vcr VehicleConfigResponse
@@ -735,9 +761,12 @@ func GetVehicleConfig(client *http.Client, token *Token, id int) (*VehicleConfig
 	return &(vcr.Response), nil
 }
 
+// VehicleDataResponse is the return from a vehicle_data call
 type VehicleDataResponse struct {
 	Response VehicleData
 }
+
+// VehicleData is the actual data structure for a vehicle_data call
 type VehicleData struct {
 	Vehicle
 	UserId int           `json:"user_id"`
@@ -749,7 +778,7 @@ type VehicleData struct {
 	Vc     VehicleConfig `json:"vehicle_config"`
 }
 
-// GetVehicleData
+// GetVehicleData performs a vehicle_data call
 func GetVehicleData(client *http.Client, token *Token, id int) (*VehicleData, error) {
 	var verbose = false
 	var vdr VehicleDataResponse
@@ -769,7 +798,7 @@ func GetVehicleData(client *http.Client, token *Token, id int) (*VehicleData, er
 	return &(vdr.Response), nil
 }
 
-// Mobile Enabled
+// MobileEnabledResponse is the return from a mobile_enabled call
 type MobileEnabledResponse struct {
 	Response bool `json:"response"`
 }
