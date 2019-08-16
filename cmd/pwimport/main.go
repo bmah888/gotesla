@@ -64,8 +64,8 @@ func makeMeterPoint(measurement string, meterName string, meter *gotesla.Meter) 
 }
 
 func main() {
-	var verbose bool = false
-	var pollTime float64 = 1.0
+	var verbose = false
+	var pollTime = 1.0
 
 	// Seed random number generator, for semi-random polling interval
 	rand.Seed(time.Now().UTC().UnixNano())

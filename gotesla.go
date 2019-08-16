@@ -116,7 +116,7 @@ func RefreshToken(client *http.Client, token *Token) (*Token, error) {
 // Basically passes an authentication structure to Telsa and
 // gets back a Token.
 func tokenAuthCommon(client *http.Client, auth *Auth) (*Token, error) {
-	var verbose bool = false
+	var verbose = false
 	var t Token
 
 	authjson, err := json.Marshal(auth)
@@ -256,7 +256,7 @@ func TokenTimes(t *Token) (start, end time.Time) {
 // If a non-nil authentication Token structure is passed, the bearer
 // token part is used to authenticate the request.
 func GetTesla(client *http.Client, token *Token, endpoint string) ([]byte, error) {
-	var verbose bool = false
+	var verbose = false
 
 	// Figure out the correct endpoint
 	var url = BaseUrl + endpoint
@@ -313,7 +313,7 @@ func GetTesla(client *http.Client, token *Token, endpoint string) ([]byte, error
 
 // PostTesla performs an HTTP POST request to the Tesla API.
 func PostTesla(client *http.Client, token *Token, endpoint string, payload []byte) ([]byte, error) {
-	var verbose bool = false
+	var verbose = false
 
 	// Compute endpoint URL
 	var url = BaseUrl + endpoint
@@ -370,8 +370,8 @@ type Vehicle struct {
 	State                  string      `json:"state"`
 	InService              bool        `json:"in_service"`
 	IdS                    string      `json:"id_s"`
-	CalendarEnabled        bool        `json:'calendar_enabled'`
-	ApiVersion             int         `json:'api_version'`
+	CalendarEnabled        bool        `json:"calendar_enabled"`
+	ApiVersion             int         `json:"api_version"`
 	BackseatToken          interface{} `json:"backseat_token"`
 	BackseatTokenUpdatedAt interface{} `json:"backseat_token_updated_at"`
 }
