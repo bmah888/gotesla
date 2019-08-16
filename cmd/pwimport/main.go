@@ -22,8 +22,8 @@ import (
 	influxClient "github.com/influxdata/influxdb1-client/v2" // too many things called "client"
 )
 
-// InfluxUrl is the URL to the InfluxDB server
-var InfluxUrl string
+// InfluxURL is the URL to the InfluxDB server
+var InfluxURL string
 
 // InfluxDb is the database name
 var InfluxDb string
@@ -75,7 +75,7 @@ func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 
 	// Command-line arguments
-	flag.StringVar(&InfluxUrl, "influx-url", "http://localhost:8086",
+	flag.StringVar(&InfluxURL, "influx-url", "http://localhost:8086",
 		"Influx database server URL")
 	flag.StringVar(&InfluxDb, "influx-database", "tesla",
 		"Influx database name")
@@ -111,7 +111,7 @@ func main() {
 
 	// Get a new HTTP client for InfluxDB
 	dbClient, err := influxClient.NewHTTPClient(influxClient.HTTPConfig{
-		Addr: InfluxUrl,
+		Addr: InfluxURL,
 	})
 	if err != nil {
 		log.Fatalf("NewHTTPClient: %v\n", err)

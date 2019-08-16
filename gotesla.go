@@ -35,14 +35,14 @@ import (
 
 // Tesla API parameters
 
-// BaseUrl is the leading part of the API URL.  It is unlikely to ever change.
-var BaseUrl = "https://owner-api.teslamotors.com"
+// BaseURL is the leading part of the API URL.  It is unlikely to ever change.
+var BaseURL = "https://owner-api.teslamotors.com"
 
 // UserAgent is passed in HTTP requests to the Tesla API.
 // This appears to be a mandatory parameter; the API will not work without
 // some value being passed here.
 var UserAgent = "org.kitchenlab.gotesla"
-var teslaClientId = "e4a9949fcfa04068f59abb5a658f2bac0a3428e4652315490b659d5ab3f35a9e"
+var teslaClientID = "e4a9949fcfa04068f59abb5a658f2bac0a3428e4652315490b659d5ab3f35a9e"
 var teslaClientSecret = "c75f14bbadc8bee3a7594412c31416f8300256d7668ea7e6e7f06727bfb9d220"
 
 // TokenCachePath is the location (UNIX specific?) to cache API credentials.
@@ -67,7 +67,7 @@ var TokenCachePathNewSuffix = ".new"
 //
 type Auth struct {
 	GrantType    string `json:"grant_type"`
-	ClientId     string `json:"client_id"`
+	ClientID     string `json:"client_id"`
 	ClientSecret string `json:"client_secret"`
 	Email        string `json:"email,omitempty"`
 	Password     string `json:"password,omitempty"`
@@ -92,7 +92,7 @@ func GetToken(client *http.Client, username *string, password *string) (*Token, 
 	// Create JSON structure for authentication request
 	var auth Auth
 	auth.GrantType = "password"
-	auth.ClientId = teslaClientId
+	auth.ClientID = teslaClientID
 	auth.ClientSecret = teslaClientSecret
 	auth.Email = *username
 	auth.Password = *password
@@ -110,7 +110,7 @@ func RefreshToken(client *http.Client, token *Token) (*Token, error) {
 	// Create JSON structure for authentication request
 	var auth Auth
 	auth.GrantType = "refresh_token"
-	auth.ClientId = teslaClientId
+	auth.ClientID = teslaClientID
 	auth.ClientSecret = teslaClientSecret
 	auth.RefreshToken = token.RefreshToken
 
@@ -265,7 +265,7 @@ func GetTesla(client *http.Client, token *Token, endpoint string) ([]byte, error
 	var verbose = false
 
 	// Figure out the correct endpoint
-	var url = BaseUrl + endpoint
+	var url = BaseURL + endpoint
 	if verbose {
 		fmt.Printf("URL: %s\n", url)
 	}
@@ -322,7 +322,7 @@ func PostTesla(client *http.Client, token *Token, endpoint string, payload []byt
 	var verbose = false
 
 	// Compute endpoint URL
-	var url = BaseUrl + endpoint
+	var url = BaseURL + endpoint
 	if verbose {
 		fmt.Printf("URL: %s\n", url)
 	}
@@ -366,8 +366,8 @@ func PostTesla(client *http.Client, token *Token, endpoint string, payload []byt
 
 // Vehicle is a structure that describes a single Tesla vehicle.
 type Vehicle struct {
-	Id                     int         `json:"id"`
-	VehicleId              int         `json:"vehicle_id"`
+	ID                     int         `json:"id"`
+	VehicleID              int         `json:"vehicle_id"`
 	Vin                    string      `json:"vin"`
 	DisplayName            string      `json:"display_name"`
 	OptionCodes            string      `json:"option_codes"`
@@ -375,9 +375,9 @@ type Vehicle struct {
 	Tokens                 []string    `json:"tokens"`
 	State                  string      `json:"state"`
 	InService              bool        `json:"in_service"`
-	IdS                    string      `json:"id_s"`
+	IDS                    string      `json:"id_s"`
 	CalendarEnabled        bool        `json:"calendar_enabled"`
-	ApiVersion             int         `json:"api_version"`
+	APIVersion             int         `json:"api_version"`
 	BackseatToken          interface{} `json:"backseat_token"`
 	BackseatTokenUpdatedAt interface{} `json:"backseat_token_updated_at"`
 }
@@ -636,7 +636,7 @@ type VehicleStateResponse struct {
 
 // VehicleState is the return value from a vehicle_state call
 type VehicleState struct {
-	ApiVersion              int                        `json:"api_version"`
+	APIVersion              int                        `json:"api_version"`
 	AutoparkStateV2         string                     `json:"autopark_state_v2"`
 	AutoparkStyle           string                     `json:"autopark_style"`
 	CalendarSupported       bool                       `json:"calendar_supported"`
@@ -769,7 +769,7 @@ type VehicleDataResponse struct {
 // VehicleData is the actual data structure for a vehicle_data call
 type VehicleData struct {
 	Vehicle
-	UserId int           `json:"user_id"`
+	UserID int           `json:"user_id"`
 	Ds     DriveState    `json:"drive_state"`
 	Cls    ClimateState  `json:"climate_state"`
 	Chs    ChargeState   `json:"charge_state"`
