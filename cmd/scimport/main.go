@@ -86,12 +86,30 @@ func main() {
 
 	for {
 
+		// See if token will be expiring soon (less than a day)
+		h := gotesla.TokenLifetime(token).Hours()
+		if verbose {
+			fmt.Printf("Token lifetime (hours): %f\n", h)
+		}
+		if h < 24.0 {
+			// Expiring soon, attempt to refresh it.
+			token2, err := gotesla.RefreshAndCacheToken(client, token)
+			if err != nil {
+				log.Printf("RefreshAndCacheToken: %v\n", err)
+			} else {
+				token = token2
+				if verbose {
+					log.Printf("Refresh token successful\n")
+				}
+			}
+		}
+
 		for _, v := range *vehicles {
 			if verbose {
-				fmt.Printf("Vehicle: id %d VIN %s\n", v.Id, v.Vin)
+				fmt.Printf("Vehicle: id %d VIN %s\n", v.ID, v.Vin)
 			}
 
-			nc, err := gotesla.GetNearbyChargers(client, token, v.Id)
+			nc, err := gotesla.GetNearbyChargers(client, token, v.ID)
 			if err != nil {
 				log.Printf("GetNearbyChargers: %v\n", err)
 				continue

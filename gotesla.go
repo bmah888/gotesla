@@ -247,6 +247,13 @@ func CheckToken(t *Token) bool {
 	return (start.Before(now) && now.Before(end))
 }
 
+// TokenLifetime returns the remaining token lifetime
+func TokenLifetime(t *Token) (lifetime time.Duration) {
+	_, end := TokenTimes(t)
+	lifetime = time.Until(end)
+	return
+}
+
 // TokenTimes returns the start and end times for a token.
 func TokenTimes(t *Token) (start, end time.Time) {
 	start = time.Unix(int64(t.CreatedAt), 0)
