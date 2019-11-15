@@ -107,7 +107,7 @@ func main() {
 	defer dbClient.Close()
 
 	// Loop forever...
-	for {
+	for ; ; time.Sleep(time.Duration(pollTime) * time.Second) {
 
 		// Get aggregate meters...these give us power, current,
 		// and voltage for the grid, solar, Powerwall battery, and
@@ -233,12 +233,5 @@ func main() {
 			log.Printf("Write: %v\n", err)
 			continue
 		}
-
-		// Sleep for awhile...
-		if verbose {
-			fmt.Printf("Sleeping for %f\n\n", pollTime)
-		}
-		time.Sleep(time.Duration(pollTime) * time.Second)
-
 	}
 }
