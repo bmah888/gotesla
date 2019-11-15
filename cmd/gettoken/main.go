@@ -52,6 +52,10 @@ func main() {
 			return
 		}
 		t, err = gotesla.RefreshAndCacheToken(client, t0)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 	} else if len(*email) > 0 && len(*password) > 0 {
 
 		// Get an authentication token
