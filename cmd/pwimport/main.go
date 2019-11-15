@@ -68,8 +68,8 @@ func makeMeterPoint(measurement string, meterName string, meter *gotesla.Meter) 
 }
 
 func main() {
-	var verbose = false
-	var pollTime = 1.0
+	var verbose bool
+	var pollTime float64
 
 	// Seed random number generator, for semi-random polling interval
 	rand.Seed(time.Now().UTC().UnixNano())
@@ -82,7 +82,7 @@ func main() {
 	flag.StringVar(&InfluxMeasurement, "influx-measurement", "powerwall",
 		"Influx measurement name")
 	flag.StringVar(&hostname, "hostname", "teg", "Powerwall gateway hostname")
-	flag.Float64Var(&pollTime, "poll", 1.0, "Polling interval (seconds)")
+	flag.Float64Var(&pollTime, "poll", 10.0, "Polling interval (seconds)")
 	flag.BoolVar(&verbose, "verbose", false, "Verbose output")
 
 	// Parse command-line arguments
