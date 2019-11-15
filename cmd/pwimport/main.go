@@ -88,18 +88,6 @@ func main() {
 	// Parse command-line arguments
 	flag.Parse()
 
-	/*
-		// Get cached Tesla authentication token
-		token, err := gotesla.LoadCachedToken()
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		if verbose {
-			fmt.Printf("%+v\n", token)
-		}
-	*/
-
 	// Don't verify TLS certs...
 	tls := &tls.Config{InsecureSkipVerify: true}
 
