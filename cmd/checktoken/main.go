@@ -11,7 +11,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"gotesla"
+	"github.com/bmah888/gotesla"
 	"os"
 )
 

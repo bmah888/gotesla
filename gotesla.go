@@ -29,7 +29,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"strconv"
 	"time"
 )
 
@@ -478,11 +477,11 @@ type ChargeState struct {
 }
 
 // GetChargeState retrieves the state of charge in the battery and various settings
-func GetChargeState(client *http.Client, token *Token, id int) (*ChargeState, error) {
+func GetChargeState(client *http.Client, token *Token, ids string) (*ChargeState, error) {
 	var verbose = false
 	var csr ChargeStateResponse
 
-	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles/"+strconv.Itoa(id)+"/data_request/charge_state")
+	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles/"+ids+"/data_request/charge_state")
 	if err != nil {
 		return nil, err
 	}
@@ -537,11 +536,11 @@ type ClimateState struct {
 
 // GetClimateState returns information on the current internal
 // temperature and climate control system.
-func GetClimateState(client *http.Client, token *Token, id int) (*ClimateState, error) {
+func GetClimateState(client *http.Client, token *Token, ids string) (*ClimateState, error) {
 	var verbose = false
 	var clsr ClimateStateResponse
 
-	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles/"+strconv.Itoa(id)+"/data_request/climate_state")
+	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles/"+ids+"/data_request/climate_state")
 	if err != nil {
 		return nil, err
 	}
@@ -580,11 +579,11 @@ type DriveState struct {
 }
 
 // GetDriveState returns the driving and position state of the vehicle
-func GetDriveState(client *http.Client, token *Token, id int) (*DriveState, error) {
+func GetDriveState(client *http.Client, token *Token, ids string) (*DriveState, error) {
 	var verbose = false
 	var dsr DriveStateResponse
 
-	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles/"+strconv.Itoa(id)+"/data_request/drive_state")
+	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles/"+ids+"/data_request/drive_state")
 	if err != nil {
 		return nil, err
 	}
@@ -617,11 +616,11 @@ type GuiSettings struct {
 
 // GetGuiSettings returns various information about the GUI settings
 // of the car, such as unit format and range display
-func GetGuiSettings(client *http.Client, token *Token, id int) (*GuiSettings, error) {
+func GetGuiSettings(client *http.Client, token *Token, ids string) (*GuiSettings, error) {
 	var verbose = false
 	var gsr GuiSettingsResponse
 
-	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles/"+strconv.Itoa(id)+"/data_request/gui_settings")
+	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles/"+ids+"/data_request/gui_settings")
 	if err != nil {
 		return nil, err
 	}
@@ -697,11 +696,11 @@ type VehicleStateSpeedLimitMode struct {
 
 // GetVehicleState returns the vehicle's physical state, such as which
 // doors are open.
-func GetVehicleState(client *http.Client, token *Token, id int) (*VehicleState, error) {
+func GetVehicleState(client *http.Client, token *Token, ids string) (*VehicleState, error) {
 	var verbose = false
 	var vsr VehicleStateResponse
 
-	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles/"+strconv.Itoa(id)+"/data_request/vehicle_state")
+	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles/"+ids+"/data_request/vehicle_state")
 	if err != nil {
 		return nil, err
 	}
@@ -749,11 +748,11 @@ type VehicleConfig struct {
 }
 
 // GetVehicleConfig performs a vehicle_config call
-func GetVehicleConfig(client *http.Client, token *Token, id int) (*VehicleConfig, error) {
+func GetVehicleConfig(client *http.Client, token *Token, ids string) (*VehicleConfig, error) {
 	var verbose = false
 	var vcr VehicleConfigResponse
 
-	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles/"+strconv.Itoa(id)+"/data_request/vehicle_config")
+	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles/"+ids+"/data_request/vehicle_config")
 	if err != nil {
 		return nil, err
 	}
@@ -786,11 +785,11 @@ type VehicleData struct {
 }
 
 // GetVehicleData performs a vehicle_data call
-func GetVehicleData(client *http.Client, token *Token, id int) (*VehicleData, error) {
+func GetVehicleData(client *http.Client, token *Token, ids string) (*VehicleData, error) {
 	var verbose = false
 	var vdr VehicleDataResponse
 
-	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles/"+strconv.Itoa(id)+"/vehicle_data")
+	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles/"+ids+"/vehicle_data")
 	if err != nil {
 		return nil, err
 	}
@@ -811,11 +810,11 @@ type MobileEnabledResponse struct {
 }
 
 // GetMobileEnabled returns whether mobile access is enabled
-func GetMobileEnabled(client *http.Client, token *Token, id int) (bool, error) {
+func GetMobileEnabled(client *http.Client, token *Token, ids string) (bool, error) {
 	var verbose = false
 	var mer MobileEnabledResponse
 
-	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles/"+strconv.Itoa(id)+"/mobile_enabled")
+	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles/"+ids+"/mobile_enabled")
 	if err != nil {
 		return false, err
 	}
@@ -875,11 +874,11 @@ type NearbyChargingSitesResponse struct {
 }
 
 // GetNearbyChargers retrieves the chargers closest to a given vehicle.
-func GetNearbyChargers(client *http.Client, token *Token, id int) (NearbyChargingSitesResponse, error) {
+func GetNearbyChargers(client *http.Client, token *Token, ids string) (NearbyChargingSitesResponse, error) {
 	var verbose = false
 	var ncsr NearbyChargingSitesResponse
 
-	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles/"+strconv.Itoa(id)+"/nearby_charging_sites")
+	vehiclejson, err := GetTesla(client, token, "/api/1/vehicles/"+ids+"/nearby_charging_sites")
 	if err != nil {
 		return ncsr, err
 	}

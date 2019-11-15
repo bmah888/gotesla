@@ -12,7 +12,7 @@ import (
 	"crypto/tls"
 	"flag"
 	"fmt"
-	"gotesla"
+	"github.com/bmah888/gotesla"
 	"log"
 	"math"
 	"math/rand"

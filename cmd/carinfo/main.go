@@ -12,9 +12,8 @@ import (
 	"crypto/tls"
 	"flag"
 	"fmt"
-	"gotesla"
+	"github.com/bmah888/gotesla"
 	"net/http"
-	"strconv"
 	"strings"
 	_ "time"
 )
@@ -156,26 +155,25 @@ func main() {
 				model = "Model 3"
 			}
 
-			fmt.Printf("%20d%10s%20s \"%s\"\n", (*vehicles)[i].Id, model, (*vehicles)[i].Vin, (*vehicles)[i].DisplayName)
+			fmt.Printf("%20s%10s%20s \"%s\"\n", (*vehicles)[i].IDS, model, (*vehicles)[i].Vin, (*vehicles)[i].DisplayName)
 		}
 	}
 
 	// Try to figure out the actual ID
-	var idFound int
-	iParsed, err := strconv.Atoi(*id)
+	var idFound string
 	for i := 0; i < len(*vehicles); i++ {
-		if (*vehicles)[i].Id == iParsed || (*vehicles)[i].Vin == *id || (*vehicles)[i].DisplayName == *id {
-			idFound = (*vehicles)[i].Id
+		if (*vehicles)[i].IDS == *id || (*vehicles)[i].Vin == *id || (*vehicles)[i].DisplayName == *id {
+			idFound = (*vehicles)[i].IDS
 		}
 	}
 
-	if idFound == 0 {
+	if idFound == "" {
 		// Not found
 		return
 	}
 
 	if *verbose {
-		fmt.Printf("Found id %d\n", idFound)
+		fmt.Printf("Found id %s\n", idFound)
 	}
 
 	/*
@@ -241,8 +239,8 @@ func main() {
 
 	// Print car ID stuff
 	fmt.Printf("VIN: %s\n", vehicleData.Vehicle.Vin)
-	fmt.Printf("ID: %d\n", vehicleData.Vehicle.Id)
-	fmt.Printf("VehicleID: %d\n", vehicleData.Vehicle.VehicleId)
+	fmt.Printf("ID: %s\n", vehicleData.Vehicle.IDS)
+	fmt.Printf("VehicleID: %d\n", vehicleData.Vehicle.VehicleID)
 	fmt.Printf("DisplayName: %s\n", vehicleData.Vehicle.DisplayName)
 
 	// Decode options

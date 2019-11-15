@@ -12,7 +12,7 @@ import (
 	"crypto/tls"
 	"flag"
 	"fmt"
-	"gotesla"
+	"github.com/bmah888/gotesla"
 	"log"
 	"math/rand"
 	"net/http"
@@ -106,10 +106,10 @@ func main() {
 
 		for _, v := range *vehicles {
 			if verbose {
-				fmt.Printf("Vehicle: id %d VIN %s\n", v.ID, v.Vin)
+				fmt.Printf("Vehicle: id %s VIN %s\n", v.IDS, v.Vin)
 			}
 
-			nc, err := gotesla.GetNearbyChargers(client, token, v.ID)
+			nc, err := gotesla.GetNearbyChargers(client, token, v.IDS )
 			if err != nil {
 				log.Printf("GetNearbyChargers: %v\n", err)
 				continue
