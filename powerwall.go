@@ -161,6 +161,35 @@ func GetGridStatus(client *http.Client, hostname string) (GridStatus, error) {
 	return gs, nil
 }
 
+// SiteMasterResponse
+type SiteMasterResponse struct {
+	Running bool `json:"running"`
+	Uptime string `json:"uptime"`
+	ConnectedToTesla bool `json:"connected_to_tesla"`
+}
+
+func GetSiteMaster(client *http.Client, hostname string) (*SiteMasterResponse, error) {
+	var verbose = false
+	var smr SiteMasterResponse
+
+	body, err := GetPowerwall(client, hostname, "/api/sitemaster")
+
+	if err != nil {
+		return nil, err
+	}
+	if verbose {
+		fmt.Printf("Resp JSON %s\n", body)
+	}
+
+	// Parse response, get the sitemaster structure
+	err = json.Unmarshal(body, &smr)
+	if err != nil {
+		return nil, err
+	}
+
+	return &smr, nil
+}
+
 // GetPowerwall performs a GET request to a local Tesla Powerwall gateway.
 // It doesn't do authentication yet.
 func GetPowerwall(client *http.Client, hostname string, endpoint string) ([]byte, error) {

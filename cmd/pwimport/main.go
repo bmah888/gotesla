@@ -146,6 +146,18 @@ func main() {
 			log.Printf("Grid Status: %v\n", gs)
 		}
 
+		// Get the sitemaster status.  This is mostly useful
+		// for the Powerwall start/stop state and the connected to
+		// Tesla state.
+		sm, err := gotesla.GetSiteMaster(client, hostname)
+		if err != nil {
+			log.Printf("GetSiteMaster: %v\n", err)
+			continue
+		}
+		if verbose {
+			log.Printf("SiteMaster: %v\n", sm)
+		}
+
 		// Take a timestamp for any data that's not already
 		// timestamped
 		now := time.Now().Round(0)
@@ -155,7 +167,8 @@ func main() {
 		// and house (load).  Each of those will be timestamped
 		// from the last_communication_time field, and will
 		// contain (most of) the fields from the Meter structure.
-		// Another point will hold the SOE and grid status.
+		// Another point will hold the SOE, grid status, running
+		// and connection.
 		bp, err := influxClient.NewBatchPoints(influxClient.BatchPointsConfig{
 			Database:  InfluxDb,
 			Precision: "us",
@@ -206,12 +219,22 @@ func main() {
 		}
 		bp.AddPoint(p4)
 
-		// Create the point with SOE and grid status
+		// Create the point with SOE, grid status, and other status variables
 		{
 			tags := map[string]string{}
+			var running, connectedToTesla int8
+			if sm.Running {
+				running = 1
+			}
+			if sm.ConnectedToTesla {
+				connectedToTesla = 1
+			}
+			
 			fields := map[string]interface{}{
 				"soe":         soe,
 				"grid_status": int(gs),
+				"running": running,
+				"connected_to_tesla": connectedToTesla,
 			}
 
 			pt, err := influxClient.NewPoint(
