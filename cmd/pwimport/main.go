@@ -222,6 +222,11 @@ func main() {
 		// Create the point with SOE, grid status, and other status variables
 		{
 			tags := map[string]string{}
+
+			// A couple of booleans we want to record need to
+			// be converted to integers first because Grafana
+			// has difficulty dealing with graphing boolean
+			// values.
 			var running, connectedToTesla int8
 			if sm.Running {
 				running = 1
