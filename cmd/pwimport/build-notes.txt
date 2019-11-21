@@ -1,0 +1,4 @@
+CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o pwimport  .
+sudo docker build -t bmah888/gotesla/cmd/pwimport:latest .
+
+sudo docker run --env PWI_INFLUX_URL="http://localhost:8086" --env PWI_POLL=5 --network opt_default -rm -t bmah888/gotesla/cmd/pwimport:latest
