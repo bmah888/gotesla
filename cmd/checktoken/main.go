@@ -66,6 +66,7 @@ func main() {
 	var verbose = false
 
 	// Command-line arguments
+	flag.StringVar(&(gotesla.TokenCachePath), "token-cache", gotesla.TokenCachePath, "Path to Telsa token cache file")
 	flag.BoolVar(&verbose, "verbose", false, "Verbose output")
 	flag.BoolVar(&jsonOutput, "json", false, "JSON output")
 

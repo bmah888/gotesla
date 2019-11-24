@@ -99,6 +99,7 @@ func printOptionCodes(codeString string) {
 func main() {
 
 	// Command-line arguments
+	flag.StringVar(&(gotesla.TokenCachePath), "token-cache", gotesla.TokenCachePath, "Path to Telsa token cache file")
 	verbose := flag.Bool("verbose", false, "Verbose output")
 	id := flag.String("id", "", "ID of vehicle")
 

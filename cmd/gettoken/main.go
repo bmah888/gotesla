@@ -24,6 +24,7 @@ func main() {
 	var email = flag.String("email", "", "MyTesla email address")
 	var password = flag.String("password", "", "MyTesla account password")
 	var refresh = flag.Bool("refresh", false, "Refresh existing cached token")
+	flag.StringVar(&(gotesla.TokenCachePath), "token-cache", gotesla.TokenCachePath, "Path to Telsa token cache file")
 	var jsonOutput = flag.Bool("json", false, "Print token JSON")
 	flag.BoolVar(&verbose, "verbose", false, "Verbose output")
 

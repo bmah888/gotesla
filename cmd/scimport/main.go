@@ -45,6 +45,8 @@ func main() {
 		"Influx measurement name")
 	flag.BoolVar(&verbose, "verbose", false, "Verbose output")
 
+	flag.StringVar(&(gotesla.TokenCachePath), "token-cache", gotesla.TokenCachePath, "Path to Telsa token cache file")
+
 	// Parse command-line arguments
 	flag.Parse()
 
