@@ -5,7 +5,7 @@ This directory contains Dockerfiles for creating several types of
 containers for use with gotesla programs.  The intended usage is to
 create long-running containers for data-gathering programs.
 
-1.  `Dockerfile.pwimport` creates a Docker container that runs an
+`Dockerfile.pwimport` creates a Docker container that runs an
 instance of `pwimport`.  Build it thusly from the top-level source
 directory:
 
@@ -23,7 +23,7 @@ An example invocation of this container:
 
     # docker run --env PWI_INFLUX_URL="http://influxdb:8086" --env PWI_POLL=5 --network opt_default --name pwimport --detach -t bmah888/gotesla/cmd/pwimport:latest
 
-2.  `Dockerfile.scimport` creates a Dockerfile container to run an
+`Dockerfile.scimport` creates a Dockerfile container to run an
 instance of `scimport`.  A sample build of this container can be done
 like this:
 
