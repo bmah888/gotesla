@@ -41,9 +41,13 @@ To use this container, pre-fetch a Tesla authentication token using
 the gettoken utility, giving a `-token-cache` flag pointing to some
 suitable location. It's probably best if this token cache is not
 shared by any other programs, as scimport will refresh the token as
-its lifetime approaches.
+its lifetime approaches.  Of course the token cache file should also
+not be readable by unauthorized parties, because that gives access to
+all of the remote Tesla features.
+
+    % gettoken --email user@example.com --password secret-password --token-cache ${PWD}/token-cache.json
 
 Map the token-cache file into the container in the container's run
 command, like this.
 
-    # docker run --env SCI_INFLUX_URL="http://influxdb:8086" --env SCI_TOKEN_CACHE="/token-cache.json" --mount type=bind,source="${PWD}/token-cache.json,target=/token-cache.json" --network opt_default --name pwimport --detach -t bmah888/gotesla/cmd/scimport:latest
+    # docker run --env SCI_INFLUX_URL="http://influxdb:8086" --env SCI_TOKEN_CACHE="/token-cache.json" --mount type=bind,source="${PWD}/token-cache.json,target=/token-cache.json" --network opt_default --name scimport --detach -t bmah888/gotesla/cmd/scimport:latest
