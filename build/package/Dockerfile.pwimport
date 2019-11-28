@@ -4,11 +4,10 @@ WORKDIR /go/src/github.com/bmah888/gotesla
 COPY . .
 RUN go mod download
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o pwimport cmd/pwimport/main.go
-RUN ls -ls cmd/pwimport
 
 FROM alpine:latest
 RUN apk add --no-cache bash
 WORKDIR /root
-COPY --from=builder /go/src/github.com/bmah888/gotesla//pwimport /
+COPY --from=builder /go/src/github.com/bmah888/gotesla/pwimport /
 COPY --from=builder /go/src/github.com/bmah888/gotesla/cmd/pwimport/docker-entrypoint.sh /
 CMD ["/docker-entrypoint.sh"]
