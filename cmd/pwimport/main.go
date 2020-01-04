@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2019 Bruce A. Mah.
+// Copyright (C) 2020 Bruce A. Mah.
 // All rights reserved.
 //
 // Distributed under a BSD-style license, see the LICENSE file for
@@ -235,6 +235,17 @@ func main() {
 				connectedToTesla = 1
 			}
 			
+			// Convert from API SOE values to the values displayed
+			// in the Tesla mobile app, so the values stored to
+			// the database match the app.  It's a linear scaling
+			// described in (e.g.):
+			// https://teslamotorsclub.com/tmc/posts/4360544/
+			// https://teslamotorsclub.com/tmc/posts/4360595/
+			soe = (soe - 5) / 0.95
+			if verbose {
+				log.Printf("Scaled SOE: %f\n", soe)
+			}
+
 			fields := map[string]interface{}{
 				"soe":         soe,
 				"grid_status": int(gs),
