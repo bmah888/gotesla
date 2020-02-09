@@ -1,0 +1,39 @@
+---
+version: '2'
+services:
+  influxdb:
+    image: influxdb:latest
+    container_name: influxdb
+    restart: always
+    ports:
+      - 8086:8086
+    volumes:
+      - /opt/appdata/influxdb:/var/lib/influxdb
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    restart: always
+    ports:
+      - 3000:3000
+    volumes:
+      - /opt/appdata/grafana:/var/lib/grafana
+    environment:
+      - GF_SERVER_PROTOCOL=https
+      - GF_SERVER_CERT_FILE=/var/lib/grafana/cert.pem
+      - GF_SERVER_CERT_KEY=/var/lib/grafana/key.pem
+  pwimport:
+    image: bmah888/gotesla/cmd/pwimport:latest
+    container_name: pwimport
+    restart: always
+    environment:
+      - PWI_INFLUX_URL=http://influxdb:8086
+      - PWI_POLL=5
+  scimport:
+    image: bmah888/gotesla/cmd/scimport:latest
+    container_name: scimport
+    restart: always
+    volumes:
+      - /opt/appdata/scimport:/appdata
+    environment:
+      - SCI_INFLUX_URL=http://influxdb:8086
+      - SCI_TOKEN_CACHE=/appdata/token-cache.json
