@@ -1,0 +1,85 @@
+---
+#
+# Sample docker-compose configuration file for InfluxDB, Grafana,
+# pwimport, and scimport.
+#
+# /opt/appdata on the container host holds directories that are the
+# persistent storage for each container, such as database stores,
+# configuration files, etc.  These directories should be created
+# before starting up the containers:
+#   /opt/appdata/influxdb
+#   /opt/appdata/grafana
+#   /opt/appdata/scimport
+# (pwimport has no persistent storage)
+#
+version: '2'
+services:
+  # InfluxDB container.  This holds the timeseries database that is the
+  # backing store for the Powerwall and Supercharger measurements.
+  #
+  # More information on using InfluxDB Docker containers can be found at:
+  #   https://hub.docker.com/_/influxdb/
+  influxdb:
+    image: influxdb:latest
+    container_name: influxdb
+    restart: always
+    # The two lines below allow access to InfluxDB from outside
+    # these containers.  You can delete them if external access is a
+    # concern.
+    ports:
+      - 8086:8086
+    volumes:
+      - /opt/appdata/influxdb:/var/lib/influxdb
+  # Grafana container.  Grafana is used for visualizing the measurement
+  # data from pwimport and scimport.  It's accessed via HTTPS (see below
+  # for SSL certificate configuration) on TCP port 3000.
+  #
+  # More information on running Grafana inside a Docker container
+  # can be found at:
+  #   https://grafana.com/docs/grafana/latest/installation/docker/
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    restart: always
+    ports:
+      - 3000:3000
+    volumes:
+      - /opt/appdata/grafana:/var/lib/grafana
+    # The four lines below configure HTTPS access to the Grafana Web UI.
+    # They require a valid SSL certificate and key in the files specified
+    # below (note that these should be stored at /opt/appdata/grafana/cert.pem
+    # and /opt/appdata/grafana/key.pem on the Docker host).
+    # To use HTTP instead (less secure but easier to set up), delete these
+    # four lines.
+    environment:
+      - GF_SERVER_PROTOCOL=https
+      - GF_SERVER_CERT_FILE=/var/lib/grafana/cert.pem
+      - GF_SERVER_CERT_KEY=/var/lib/grafana/key.pem
+  # pwimport container, built from sources.  Take note of the PWI_POLL
+  # setting...this is how often (in seconds) it polls the Powerwall
+  # gateway on the local network.  This number has worked fine on my setup
+  # but if for some reason you think it's polling too often, make the
+  # number larger.  Note the pwimport default is 10 seconds.
+  pwimport:
+    image: bmah888/gotesla/cmd/pwimport:latest
+    container_name: pwimport
+    restart: always
+    environment:
+      - PWI_INFLUX_URL=http://influxdb:8086
+      - PWI_POLL=5
+  # scimport container, for getting Supercharger statistics.
+  scimport:
+    image: bmah888/gotesla/cmd/scimport:latest
+    container_name: scimport
+    restart: always
+    volumes:
+      - /opt/appdata/scimport:/appdata
+    # scimport requires a Tesla authentication token (obtained
+    # using the gettoken utility) stored at
+    # /opt/appdata/scimport/token-cache.json.  If the directory
+    # /opt/appdata/scimport is writable by the container user,
+    # then scimport will try to renew/regenerate the authentication token
+    # automatically as it gets close to expiration.
+    environment:
+      - SCI_INFLUX_URL=http://influxdb:8086
+      - SCI_TOKEN_CACHE=/appdata/token-cache.json

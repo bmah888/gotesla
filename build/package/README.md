@@ -45,9 +45,21 @@ its lifetime approaches.  Of course the token cache file should also
 not be readable by unauthorized parties, because that gives access to
 all of the remote Tesla features.
 
-    % gettoken --email user@example.com --password secret-password --token-cache ${PWD}/token-cache.json
+In this example, we create a new directory to hold the token cache
+file.  We'll map that directory into the container.  The reason for
+this is that scimport will automatically try to renew the stored token
+as it approaches its expiration time, but in order to do that, it
+needs a directory to store the new token.
 
-Map the token-cache file into the container in the container's run
-command, like this.
+    % mkdir ${PWD}/token
+    % gettoken --email user@example.com --password secret-password --token-cache ${PWD}/token/token-cache.json
 
-    # docker run --env SCI_INFLUX_URL="http://influxdb:8086" --env SCI_TOKEN_CACHE="/token-cache.json" --mount type=bind,source="${PWD}/token-cache.json,target=/token-cache.json" --network opt_default --name scimport --detach -t bmah888/gotesla/cmd/scimport:latest
+Map the directory containing the token-cache file into the container
+in the container's run command, like this.
+
+    # docker run --env SCI_INFLUX_URL="http://influxdb:8086" --env SCI_TOKEN_CACHE="/token/token-cache.json" --mount type=bind,source="${PWD}/token,target=/token" --network opt_default --name scimport --detach -t bmah888/gotesla/cmd/scimport:latest
+
+In this same directory is a `docker-compose.yml` file, which gives an
+example of how to run `pwimport` and `scimport` in their containers
+alongside instances of InfluxDB and Grafana.
+
