@@ -171,7 +171,7 @@ func main() {
 		// and connection.
 		bp, err := influxClient.NewBatchPoints(influxClient.BatchPointsConfig{
 			Database:  InfluxDb,
-			Precision: "us",
+			Precision: "s",
 		})
 		if err != nil {
 			log.Printf("NewBatchPoints: %v\n", err)
