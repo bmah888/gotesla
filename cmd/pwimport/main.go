@@ -88,7 +88,7 @@ func main() {
 	flag.StringVar(&email, "email", "", "Email address for login")
 	flag.StringVar(&password, "password", "", "Password for login")
 	flag.Float64Var(&pollTime, "poll", 10.0, "Polling interval (seconds)")
-	flag.Float64Var(&refreshTime, "refresh", 60.0, "Token refresh interval (seconds)")
+	flag.Float64Var(&refreshTime, "refresh", 3600.0, "Token refresh interval (seconds)")
 	flag.BoolVar(&verbose, "verbose", false, "Verbose output")
 
 	// Parse command-line arguments
