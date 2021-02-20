@@ -14,13 +14,17 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 )
 
 // Tesla API parameters
 
 // Authentication
 type PowerwallAuth struct {
+	Email string `json:"email"`
 	Token string `json:"token"`
+	LoginTime string `json:"loginTime"`
+	Timestamp time.Time
 }
 
 // A Meter contains the state of one of the (four?) energy meters
@@ -58,11 +62,11 @@ type MeterAggregate struct {
 // GetMeterAggregate retrieves a MeterAggregate from a local
 // Powerwall gateway.  No authentication is required for this
 // call.
-func GetMeterAggregate(client *http.Client, hostname string) (*MeterAggregate, error) {
+func GetMeterAggregate(client *http.Client, hostname string, pwa *PowerwallAuth) (*MeterAggregate, error) {
 	var verbose = false
 	var ma MeterAggregate
 
-	body, err := GetPowerwall(client, hostname, "/api/meters/aggregates")
+	body, err := GetPowerwall(client, hostname, "/api/meters/aggregates", pwa)
 
 	if err != nil {
 		return nil, err
@@ -89,11 +93,11 @@ type Soe struct {
 // GetSoe returns the state of energy of the Powerwall batteries.
 // Unlike some other calls in this library, it doesn't return the
 // structure, just a float64 value (and error if applicable).
-func GetSoe(client *http.Client, hostname string) (float64, error) {
+func GetSoe(client *http.Client, hostname string, pwa *PowerwallAuth) (float64, error) {
 	var verbose = false
 	var soe Soe
 
-	body, err := GetPowerwall(client, hostname, "/api/system_status/soe")
+	body, err := GetPowerwall(client, hostname, "/api/system_status/soe", pwa)
 
 	if err != nil {
 		return 0.0, err
@@ -135,11 +139,11 @@ const (
 // GetGridStatus returns the grid status as a GridStatus value.
 // We do it this way in order to avoid the caller needing to parse
 // the response strings.
-func GetGridStatus(client *http.Client, hostname string) (GridStatus, error) {
+func GetGridStatus(client *http.Client, hostname string, pwa *PowerwallAuth) (GridStatus, error) {
 	var verbose = false
 	var gsr GridStatusResponse
 
-	body, err := GetPowerwall(client, hostname, "/api/system_status/grid_status")
+	body, err := GetPowerwall(client, hostname, "/api/system_status/grid_status", pwa)
 
 	if err != nil {
 		return GridStatusUnknown, err
@@ -174,11 +178,11 @@ type SiteMasterResponse struct {
 	ConnectedToTesla bool `json:"connected_to_tesla"`
 }
 
-func GetSiteMaster(client *http.Client, hostname string) (*SiteMasterResponse, error) {
+func GetSiteMaster(client *http.Client, hostname string, pwa *PowerwallAuth) (*SiteMasterResponse, error) {
 	var verbose = false
 	var smr SiteMasterResponse
 
-	body, err := GetPowerwall(client, hostname, "/api/sitemaster")
+	body, err := GetPowerwall(client, hostname, "/api/sitemaster", pwa)
 
 	if err != nil {
 		return nil, err
@@ -198,7 +202,7 @@ func GetSiteMaster(client *http.Client, hostname string) (*SiteMasterResponse, e
 
 // GetPowerwall performs a GET request to a local Tesla Powerwall gateway.
 // It doesn't do authentication yet.
-func GetPowerwall(client *http.Client, hostname string, endpoint string) ([]byte, error) {
+func GetPowerwall(client *http.Client, hostname string, endpoint string, pwa *PowerwallAuth) ([]byte, error) {
 
 	var verbose = false
 
@@ -216,9 +220,10 @@ func GetPowerwall(client *http.Client, hostname string, endpoint string) ([]byte
 	req.Header.Add("User-Agent", UserAgent)
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept", "application/json")
-	//	if token != nil {
-	//		req.Header.Add("Authorization", "Bearer "+token.AccessToken)
-	//	}
+
+	if pwa != nil {
+			req.Header.Add("Cookie", "AuthCookie=" + pwa.Token)
+	}
 
 	if verbose {
 		fmt.Printf("Headers: %s\n", req.Header)
@@ -264,9 +269,8 @@ func GetPowerwallAuth(client *http.Client, hostname string, email string, passwo
 		Email string `json:"email"`
 		Password string `json:"password"`
 	}
-	var pl PowerwallLogin;
-
-	var pa PowerwallAuth;
+	var pl PowerwallLogin
+	var pa PowerwallAuth
 
 	var verbose = false
 
@@ -327,6 +331,9 @@ func GetPowerwallAuth(client *http.Client, hostname string, email string, passwo
 	if err != nil {
 		return nil, err
 	}
+
+	// Parse timestamp
+	pa.Timestamp, err = time.Parse(time.RFC3339Nano, pa.LoginTime)
 
 	return &pa, nil
 }
