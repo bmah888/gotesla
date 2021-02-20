@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2020 Bruce A. Mah.
+// Copyright (C) 2020-2021 Bruce A. Mah.
 // All rights reserved.
 //
 // Distributed under a BSD-style license, see the LICENSE file for
@@ -32,6 +32,8 @@ var InfluxDb string
 var InfluxMeasurement string
 
 var hostname string
+var email string
+var password string
 
 // makeMeterPoint constructs an InfluxDB measurement point from a
 // Meter structure.
@@ -82,6 +84,8 @@ func main() {
 	flag.StringVar(&InfluxMeasurement, "influx-measurement", "powerwall",
 		"Influx measurement name")
 	flag.StringVar(&hostname, "hostname", "teg", "Powerwall gateway hostname")
+	flag.StringVar(&email, "email", "", "Email address for login")
+	flag.StringVar(&password, "password", "", "Password for login")
 	flag.Float64Var(&pollTime, "poll", 10.0, "Polling interval (seconds)")
 	flag.BoolVar(&verbose, "verbose", false, "Verbose output")
 
@@ -96,6 +100,17 @@ func main() {
 
 	// Make an HTTPS client
 	client := &http.Client{Transport: tr}
+
+	// Get an authentication token
+	var pa *gotesla.PowerwallAuth
+	if (email != "" && password != "") {
+		fmt.Printf("pwa\n");
+		pa, _ = gotesla.GetPowerwallAuth(client, hostname, email, password)
+	}
+	if pa != nil {
+		fmt.Printf("pa.Token %s\n", pa.Token)
+	}
+	return
 
 	// Get a new HTTP client for InfluxDB
 	dbClient, err := influxClient.NewHTTPClient(influxClient.HTTPConfig{

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2019 Bruce A. Mah.
+// Copyright (C) 2019-2021 Bruce A. Mah.
 // All rights reserved.
 //
 // Distributed under a BSD-style license, see the LICENSE file for
@@ -9,6 +9,7 @@
 package gotesla
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -16,6 +17,11 @@ import (
 )
 
 // Tesla API parameters
+
+// Authentication
+type PowerwallAuth struct {
+	Token string `json:"token"`
+}
 
 // A Meter contains the state of one of the (four?) energy meters
 // attached to the gateway.
@@ -247,4 +253,80 @@ func GetPowerwall(client *http.Client, hostname string, endpoint string) ([]byte
 	// Caller needs to parse this in the context of whatever schema it knows
 	return body, nil
 
+}
+
+// GetPowerwallAuth gets a token (plus some other stuff) for authentication
+// on a local Powerwall gateway
+func GetPowerwallAuth(client *http.Client, hostname string, email string, password string) (*PowerwallAuth, error) {
+
+	type PowerwallLogin struct {
+		Username string `json:"username"`
+		Email string `json:"email"`
+		Password string `json:"password"`
+	}
+	var pl PowerwallLogin;
+
+	var pa PowerwallAuth;
+
+	var verbose = false
+
+	// Figure out the correct endpoint
+	var url = "https://" + hostname + "/api/login/Basic"
+	if verbose {
+		fmt.Printf("URL: %s\n", url)
+	}
+
+	// JSON payload with login info
+	pl.Username = "customer"
+	pl.Email = email
+	pl.Password = password
+	payload, err := json.Marshal(pl)
+
+	// Set up POST
+	req, err := http.NewRequest("POST", url, bytes.NewReader(payload))
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("User-Agent", UserAgent)
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Accept", "application/json")
+
+	if verbose {
+		fmt.Printf("Headers: %s\n", req.Header)
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	// Try to handle certain types of HTTP status codes
+	if verbose {
+		fmt.Printf("Status: %s\n", resp.Status)
+	}
+	switch resp.StatusCode {
+	case http.StatusOK:
+		/* break */
+	default:
+		return nil, fmt.Errorf("%s", http.StatusText(resp.StatusCode))
+	}
+
+	// If we get here, we can be reasonably (?) assured of a valid body.
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	if verbose {
+		fmt.Printf("Resp JSON %s\n", body)
+	}
+
+	// Parse response, get auth token
+	err = json.Unmarshal(body, &pa)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pa, nil
 }
