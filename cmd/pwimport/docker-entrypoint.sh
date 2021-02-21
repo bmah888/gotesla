@@ -4,7 +4,15 @@ set -e
 ARGS=""
 
 if [ "x$PWI_HOST" != 'x' ]; then
-	ARGS="$ARGS -hostname $PWIHOST"
+	ARGS="$ARGS -hostname $PWI_HOST"
+fi
+
+if [ "x$PWI_EMAIL" != 'x' ]; then
+	ARGS="$ARGS -email $PWI_EMAIL"
+fi
+
+if [ "x$PWI_PASSWORD" != 'x' ]; then
+	ARGS="$ARGS -email $PWI_PASSWORD"
 fi
 
 if [ "x$PWI_INFLUX_DB" != 'x' ]; then

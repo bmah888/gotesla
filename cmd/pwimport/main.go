@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2020 Bruce A. Mah.
+// Copyright (C) 2020-2021 Bruce A. Mah.
 // All rights reserved.
 //
 // Distributed under a BSD-style license, see the LICENSE file for
@@ -32,6 +32,8 @@ var InfluxDb string
 var InfluxMeasurement string
 
 var hostname string
+var email string
+var password string
 
 // makeMeterPoint constructs an InfluxDB measurement point from a
 // Meter structure.
@@ -70,6 +72,7 @@ func makeMeterPoint(measurement string, meterName string, meter *gotesla.Meter) 
 func main() {
 	var verbose bool
 	var pollTime float64
+	var refreshTime float64
 
 	// Seed random number generator, for semi-random polling interval
 	rand.Seed(time.Now().UTC().UnixNano())
@@ -82,7 +85,10 @@ func main() {
 	flag.StringVar(&InfluxMeasurement, "influx-measurement", "powerwall",
 		"Influx measurement name")
 	flag.StringVar(&hostname, "hostname", "teg", "Powerwall gateway hostname")
+	flag.StringVar(&email, "email", "", "Email address for login")
+	flag.StringVar(&password, "password", "", "Password for login")
 	flag.Float64Var(&pollTime, "poll", 10.0, "Polling interval (seconds)")
+	flag.Float64Var(&refreshTime, "refresh", 3600.0, "Token refresh interval (seconds)")
 	flag.BoolVar(&verbose, "verbose", false, "Verbose output")
 
 	// Parse command-line arguments
@@ -96,6 +102,26 @@ func main() {
 
 	// Make an HTTPS client
 	client := &http.Client{Transport: tr}
+
+	var err error
+
+	// Get an authentication token
+	var pwa *gotesla.PowerwallAuth
+	if (email != "" && password != "") {
+		pwa, err = gotesla.GetPowerwallAuth(client, hostname, email, password)
+		if err != nil {
+			log.Fatalf("PowerwallAuth: %v\n", err);
+		}
+	}
+
+	// Maybe print out some stuff from the token
+	if (verbose) {
+		if pwa != nil {
+			fmt.Printf("email %s\n", pwa.Email)
+			fmt.Printf("token %s\n", pwa.Token)
+			fmt.Printf("timestamp %s\n", pwa.Timestamp.Format(time.UnixDate))
+		}
+	}
 
 	// Get a new HTTP client for InfluxDB
 	dbClient, err := influxClient.NewHTTPClient(influxClient.HTTPConfig{
@@ -112,7 +138,7 @@ func main() {
 		// Get aggregate meters...these give us power, current,
 		// and voltage for the grid, solar, Powerwall battery, and
 		// house load.
-		ma, err := gotesla.GetMeterAggregate(client, hostname)
+		ma, err := gotesla.GetMeterAggregate(client, hostname, pwa)
 		if err != nil {
 			log.Printf("GetMeterAggregate: %v\n", err)
 			continue
@@ -124,7 +150,7 @@ func main() {
 		// Get SOE (state of energy) of the Powerwall battery,
 		// it's a float percentage from 0-100 for the entire
 		// system (potentially multiple batteries).
-		soe, err := gotesla.GetSoe(client, hostname)
+		soe, err := gotesla.GetSoe(client, hostname, pwa)
 		if err != nil {
 			log.Printf("GetSoe: %v\n", err)
 			continue
@@ -137,7 +163,7 @@ func main() {
 		// We define that within the gotesla package as a
 		// scalar (see the declaration of GridStatus), but note
 		// that it needs to be converted to an int eventually.
-		gs, err := gotesla.GetGridStatus(client, hostname)
+		gs, err := gotesla.GetGridStatus(client, hostname, pwa)
 		if err != nil {
 			log.Printf("GetGridStatus: %v\n", err)
 			continue
@@ -149,7 +175,7 @@ func main() {
 		// Get the sitemaster status.  This is mostly useful
 		// for the Powerwall start/stop state and the connected to
 		// Tesla state.
-		sm, err := gotesla.GetSiteMaster(client, hostname)
+		sm, err := gotesla.GetSiteMaster(client, hostname, pwa)
 		if err != nil {
 			log.Printf("GetSiteMaster: %v\n", err)
 			continue
@@ -270,7 +296,28 @@ func main() {
 		err = dbClient.Write(bp)
 		if err != nil {
 			log.Printf("Write: %v\n", err)
-			continue
+		}
+
+		// If we needed to authenticate, then the authentication
+		// token might need a refresh. The tokens don't have
+		// explicit expiration times, so we have to refresh
+		// at some hopefully short enough interval.
+		if (pwa != nil) {
+
+			// How old is the token?
+			tokenAge := time.Since(pwa.Timestamp)
+			if verbose {
+				fmt.Printf("tokenAge %v\n", tokenAge.String());
+			}
+
+			if (tokenAge.Seconds() > refreshTime) {
+				if verbose {
+					fmt.Printf("Reauthenticate token\n");
+				}
+				if (email != "" && password != "") {
+					pwa, _ = gotesla.GetPowerwallAuth(client, hostname, email, password)
+				}
+			}
 		}
 	}
 }
