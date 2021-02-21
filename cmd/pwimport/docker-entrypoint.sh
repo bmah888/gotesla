@@ -12,7 +12,7 @@ if [ "x$PWI_EMAIL" != 'x' ]; then
 fi
 
 if [ "x$PWI_PASSWORD" != 'x' ]; then
-	ARGS="$ARGS -email $PWI_PASSWORD"
+	ARGS="$ARGS -password $PWI_PASSWORD"
 fi
 
 if [ "x$PWI_INFLUX_DB" != 'x' ]; then
