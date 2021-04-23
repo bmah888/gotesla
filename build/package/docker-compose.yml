@@ -60,11 +60,20 @@ services:
   # gateway on the local network.  This number has worked fine on my setup
   # but if for some reason you think it's polling too often, make the
   # number larger.  Note the pwimport default is 10 seconds.
+  # PWI_EMAIL and PWI_PASSWORD need to be set correctly for revisions
+  # of the Powerwall gateway software (approximately) 2021 or later.
+  # PWI_EMAIL must be the email for the Tesla account owning the
+  # Powerwall system.  PWI_PASSWORD must be the password for the local
+  # Tesla Energy Gateway (TEG).  Note this is different from the password
+  # for the Tesla account, by default this is the last five
+  # characters of the TEG's serial number.
   pwimport:
     image: bmah888/gotesla/cmd/pwimport:latest
     container_name: pwimport
     restart: always
     environment:
+      - PWI_EMAIL=user@example.org
+      - PWI_PASSWORD=local-teg-password
       - PWI_INFLUX_URL=http://influxdb:8086
       - PWI_POLL=5
   # scimport container, for getting Supercharger statistics.
