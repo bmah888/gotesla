@@ -4,11 +4,8 @@ pwimport
 Tesla Powerwall data import utility.  Periodically queries a Tesla
 Powerwall gateway via the local LAN and pulls statistics into a
 InfluxDB database.  Specifically, it pulls the aggregate meters, state
-of energy, and grid status.  These can be visualized (for example) in
-a Grafana dashboard.
-
-Note that no authentication parameters are required for the Powerwall
-APIs used by this utility.
+of energy, grid and network connectivity, and battery status.  These
+can be visualized (for example) in a Grafana dashboard.
 
 Use the `-influx-url`, `-influx-database`, and `-influx-measurement`
 flags to specify where to write the data.  The defaults are to write a
@@ -21,7 +18,10 @@ Use the `-hostname` flag to specify the hostname of the Powerwall
 gateway to query (the default is `teg`).  Note the gateway must be
 reachable from the host running this program; it will not work if the
 Powerwall is relying solely on cellular data for connectivity to
-Tesla's backend servers.
+Tesla's backend servers. Use the `-email` and `-password` options to
+authenticate to the gateway; this login became mandatory for local
+access as of (approximately) version 20.49 of the Powerwall gateway
+software.
 
 Use the `-poll` flag to specify the time to pause between polling
 cycles, in seconds.  The default is 10 seconds.  Polling cycles as low

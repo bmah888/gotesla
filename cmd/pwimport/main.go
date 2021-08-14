@@ -69,6 +69,52 @@ func makeMeterPoint(measurement string, meterName string, meter *gotesla.Meter) 
 	return pt, nil
 }
 
+// makeFullPackEnergyPoint constructs a measurement point from a
+// BatteryBlock structures from the system_status API call
+func makeFullPackEnergyPoint(measurement string, now time.Time, batt gotesla.BatteryBlock) (*influxClient.Point, error) {
+	// Pull the various points out of the BatteryBlock and feed to
+	// a lower-level version of this function.
+	return makeFullPackEnergyPoint2(measurement,
+		now,
+		batt.PackageSerialNumber,
+		batt.NominalFullPackEnergy,
+		batt.NominalEnergyRemaining,
+		batt.EnergyCharged,
+		batt.EnergyDischarged)
+}
+
+// makeFullPackEnergyPoint2 constructs a measurement point from
+// discrete values. Useful for synthesizing data points for an entire
+// Powerwall system.
+func makeFullPackEnergyPoint2(measurement string,
+	now time.Time,
+	packageSerialNumber string,
+	nominalFullPackEnergy int,
+	nominalEnergyRemaining int,
+	energyCharged int,
+	energyDischarged int) (*influxClient.Point, error) {
+
+	tags := map[string]string {
+		"PackageSerialNumber": packageSerialNumber,
+	}
+	fields:= map[string]interface {} {
+		"nominal_full_pack_energy": nominalFullPackEnergy,
+		"nominal_energy_remaining": nominalEnergyRemaining,
+		"energy_charged": energyCharged,
+		"energy_discharged": energyDischarged,
+	}
+	pt, err := influxClient.NewPoint(
+		measurement,
+		tags,
+		fields,
+		now)
+	if err != nil {
+		return nil, err
+	}
+
+	return pt, nil
+}
+
 func main() {
 	var verbose bool
 	var pollTime float64
@@ -184,6 +230,16 @@ func main() {
 			log.Printf("SiteMaster: %v\n", sm)
 		}
 
+		// Get the system status, for the battery capacity
+		sysstat, err := gotesla.GetSystemStatus(client, hostname, pwa)
+		if err != nil {
+			log.Printf("GetSystemStatus: %v\n", err)
+			continue
+		}
+		if verbose {
+			log.Printf("SystemStatus: %v\n", sysstat)
+		}
+
 		// Take a timestamp for any data that's not already
 		// timestamped
 		now := time.Now().Round(0)
@@ -291,6 +347,43 @@ func main() {
 			}
 			bp.AddPoint(pt)
 		}
+
+		// Create battery and sum points from system status
+		var i int
+		var totalCharged, totalDischarged int
+		for i = 0; i < sysstat.AvailableBlocks; i++ {
+			battp, err := makeFullPackEnergyPoint(InfluxMeasurement, now, sysstat.BatteryBlocks[i])
+			if err != nil {
+				log.Printf("makeFullEnergyPackPoint: %v\n", err)
+				continue
+			}
+			if verbose {
+				fmt.Printf("batt: %+v\n", battp)
+			}
+
+			// For computing system total charge/discharge energy
+			totalCharged += sysstat.BatteryBlocks[i].EnergyCharged
+			totalDischarged += sysstat.BatteryBlocks[i].EnergyDischarged
+
+			bp.AddPoint(battp)
+		}
+
+		// System total
+		sysp, err := makeFullPackEnergyPoint2(InfluxMeasurement,
+			now,
+			"total",
+			sysstat.NominalFullPackEnergy,
+			sysstat.NominalEnergyRemaining,
+			totalCharged,
+			totalDischarged)
+		if err != nil {
+			log.Printf("makeFullPackEnergyPoint2: %v\n", err)
+			continue
+		}
+		if verbose {
+			fmt.Printf("sys: %+v\n", sysp)
+		}
+		bp.AddPoint(sysp)
 
 		// Write data points in the batch
 		err = dbClient.Write(bp)
