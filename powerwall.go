@@ -84,6 +84,45 @@ func GetMeterAggregate(client *http.Client, hostname string, pwa *PowerwallAuth)
 	return &ma, nil
 }
 
+type SystemStatusResponse struct {
+	BatteryTargetPower	float64	`json:"battery_target_power"`
+	NominalFullPackEnergy	int	`json:"nominal_full_pack_energy"`
+	NominalEnergyRemaining	int	`json:"nominal_energy_remaining"`
+	AvailableBlocks		int	`json:"available_blocks"`
+	BatteryBlocks		[] BatteryBlock	`json:"battery_blocks"`
+	SystemIslandState	string	`json:"system_island_state"`
+}
+
+type BatteryBlock struct {
+	PackagePartNumber	string
+	PackageSerialNumber	string
+	NominalFullPackEnergy	int	`json:"nominal_full_pack_energy"`
+	NominalEnergyRemaining	int	`json:"nominal_energy_remaining"`
+	EnergyCharged		int	`json:"energy_charged"`
+	EnergyDischarged	int	`json:"energy_discharged"`
+}
+
+func GetSystemStatus(client *http.Client, hostname string, pwa *PowerwallAuth) (*SystemStatusResponse, error) {
+	var verbose = false
+	var sysstat SystemStatusResponse
+
+	body, err := GetPowerwall(client, hostname, "/api/system_status", pwa)
+
+	if err != nil {
+		return nil, err
+	}
+	if verbose {
+		fmt.Printf("Resp JSON %s\n", body)
+	}
+
+	err = json.Unmarshal(body, &sysstat)
+	if err != nil {
+		return nil, err
+	}
+
+	return &sysstat, nil
+}
+
 // A Soe structure gives the current state of energy of the Powerwall
 // batteries (total, as a value between 0-100).
 type Soe struct {
