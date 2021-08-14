@@ -54,9 +54,16 @@ Powerwall gateway on the local network) into an
 [InfluxDB](https://www.influxdata.com/time-series-platform/influxdb/)
 timeseries database.  Similar to `scimport` above.
 
+pwsystat
+--------
+
+Prints Powerwall 2 battery capacity information from the system_status
+API call, in human-readable form.
+
 Copyright
 ---------
 
-Copyright (C) 2019 Bruce A. Mah.  All rights reserved.  Distributed
-under a BSD-style license, see the LICENSE file for more information.
+Copyright (C) 2019-2021 Bruce A. Mah.  All rights reserved.
+Distributed under a BSD-style license, see the LICENSE file for more
+information.
 
