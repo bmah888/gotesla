@@ -20,7 +20,7 @@ services:
   # More information on using InfluxDB Docker containers can be found at:
   #   https://hub.docker.com/_/influxdb/
   influxdb:
-    image: influxdb:latest
+    image: influxdb:1.8
     container_name: influxdb
     restart: always
     # The two lines below allow access to InfluxDB from outside
