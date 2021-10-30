@@ -29,3 +29,9 @@ as 5 seconds have been run with no ill effects, although as a matter
 of common sense it is probably wise to avoid polling the gateway too
 frequently.
 
+`dashboard.json` is a JSON representation of a Grafana dashboard.
+It uses some custom plug-ins and was written for Grafana v7 (as of
+this writing, v8 is current). It can be used as a starting point
+for your own visualizations...it will probably be updated as the
+author migrates his setup to Grafana v8.
+
