@@ -21,8 +21,8 @@ import (
 
 // Authentication
 type PowerwallAuth struct {
-	Email string `json:"email"`
-	Token string `json:"token"`
+	Email     string `json:"email"`
+	Token     string `json:"token"`
 	LoginTime string `json:"loginTime"`
 	Timestamp time.Time
 }
@@ -85,21 +85,21 @@ func GetMeterAggregate(client *http.Client, hostname string, pwa *PowerwallAuth)
 }
 
 type SystemStatusResponse struct {
-	BatteryTargetPower	float64	`json:"battery_target_power"`
-	NominalFullPackEnergy	int	`json:"nominal_full_pack_energy"`
-	NominalEnergyRemaining	int	`json:"nominal_energy_remaining"`
-	AvailableBlocks		int	`json:"available_blocks"`
-	BatteryBlocks		[] BatteryBlock	`json:"battery_blocks"`
-	SystemIslandState	string	`json:"system_island_state"`
+	BatteryTargetPower     float64        `json:"battery_target_power"`
+	NominalFullPackEnergy  int            `json:"nominal_full_pack_energy"`
+	NominalEnergyRemaining int            `json:"nominal_energy_remaining"`
+	AvailableBlocks        int            `json:"available_blocks"`
+	BatteryBlocks          []BatteryBlock `json:"battery_blocks"`
+	SystemIslandState      string         `json:"system_island_state"`
 }
 
 type BatteryBlock struct {
-	PackagePartNumber	string
-	PackageSerialNumber	string
-	NominalFullPackEnergy	int	`json:"nominal_full_pack_energy"`
-	NominalEnergyRemaining	int	`json:"nominal_energy_remaining"`
-	EnergyCharged		int	`json:"energy_charged"`
-	EnergyDischarged	int	`json:"energy_discharged"`
+	PackagePartNumber      string
+	PackageSerialNumber    string
+	NominalFullPackEnergy  int `json:"nominal_full_pack_energy"`
+	NominalEnergyRemaining int `json:"nominal_energy_remaining"`
+	EnergyCharged          int `json:"energy_charged"`
+	EnergyDischarged       int `json:"energy_discharged"`
 }
 
 func GetSystemStatus(client *http.Client, hostname string, pwa *PowerwallAuth) (*SystemStatusResponse, error) {
@@ -212,9 +212,9 @@ func GetGridStatus(client *http.Client, hostname string, pwa *PowerwallAuth) (Gr
 
 // SiteMasterResponse
 type SiteMasterResponse struct {
-	Running bool `json:"running"`
-	Uptime string `json:"uptime"`
-	ConnectedToTesla bool `json:"connected_to_tesla"`
+	Running          bool   `json:"running"`
+	Uptime           string `json:"uptime"`
+	ConnectedToTesla bool   `json:"connected_to_tesla"`
 }
 
 func GetSiteMaster(client *http.Client, hostname string, pwa *PowerwallAuth) (*SiteMasterResponse, error) {
@@ -261,7 +261,7 @@ func GetPowerwall(client *http.Client, hostname string, endpoint string, pwa *Po
 	req.Header.Add("Accept", "application/json")
 
 	if pwa != nil {
-			req.Header.Add("Cookie", "AuthCookie=" + pwa.Token)
+		req.Header.Add("Cookie", "AuthCookie="+pwa.Token)
 	}
 
 	if verbose {
@@ -305,7 +305,7 @@ func GetPowerwallAuth(client *http.Client, hostname string, email string, passwo
 
 	type PowerwallLogin struct {
 		Username string `json:"username"`
-		Email string `json:"email"`
+		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
 	var pl PowerwallLogin

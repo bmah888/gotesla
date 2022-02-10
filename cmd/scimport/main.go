@@ -111,7 +111,7 @@ func main() {
 				fmt.Printf("Vehicle: id %s VIN %s\n", v.IDS, v.Vin)
 			}
 
-			nc, err := gotesla.GetNearbyChargers(client, token, v.IDS )
+			nc, err := gotesla.GetNearbyChargers(client, token, v.IDS)
 			if err != nil {
 				log.Printf("GetNearbyChargers: %v\n", err)
 				continue

@@ -94,14 +94,14 @@ func makeFullPackEnergyPoint2(measurement string,
 	energyCharged int,
 	energyDischarged int) (*influxClient.Point, error) {
 
-	tags := map[string]string {
+	tags := map[string]string{
 		"PackageSerialNumber": packageSerialNumber,
 	}
-	fields:= map[string]interface {} {
+	fields := map[string]interface{}{
 		"nominal_full_pack_energy": nominalFullPackEnergy,
 		"nominal_energy_remaining": nominalEnergyRemaining,
-		"energy_charged": energyCharged,
-		"energy_discharged": energyDischarged,
+		"energy_charged":           energyCharged,
+		"energy_discharged":        energyDischarged,
 	}
 	pt, err := influxClient.NewPoint(
 		measurement,
@@ -153,15 +153,15 @@ func main() {
 
 	// Get an authentication token
 	var pwa *gotesla.PowerwallAuth
-	if (email != "" && password != "") {
+	if email != "" && password != "" {
 		pwa, err = gotesla.GetPowerwallAuth(client, hostname, email, password)
 		if err != nil {
-			log.Fatalf("PowerwallAuth: %v\n", err);
+			log.Fatalf("PowerwallAuth: %v\n", err)
 		}
 	}
 
 	// Maybe print out some stuff from the token
-	if (verbose) {
+	if verbose {
 		if pwa != nil {
 			fmt.Printf("email %s\n", pwa.Email)
 			fmt.Printf("token %s\n", pwa.Token)
@@ -316,7 +316,7 @@ func main() {
 			if sm.ConnectedToTesla {
 				connectedToTesla = 1
 			}
-			
+
 			// Convert from API SOE values to the values displayed
 			// in the Tesla mobile app, so the values stored to
 			// the database match the app.  It's a linear scaling
@@ -329,9 +329,9 @@ func main() {
 			}
 
 			fields := map[string]interface{}{
-				"soe":         soe,
-				"grid_status": int(gs),
-				"running": running,
+				"soe":                soe,
+				"grid_status":        int(gs),
+				"running":            running,
 				"connected_to_tesla": connectedToTesla,
 			}
 
@@ -395,19 +395,19 @@ func main() {
 		// token might need a refresh. The tokens don't have
 		// explicit expiration times, so we have to refresh
 		// at some hopefully short enough interval.
-		if (pwa != nil) {
+		if pwa != nil {
 
 			// How old is the token?
 			tokenAge := time.Since(pwa.Timestamp)
 			if verbose {
-				fmt.Printf("tokenAge %v\n", tokenAge.String());
+				fmt.Printf("tokenAge %v\n", tokenAge.String())
 			}
 
-			if (tokenAge.Seconds() > refreshTime) {
+			if tokenAge.Seconds() > refreshTime {
 				if verbose {
-					fmt.Printf("Reauthenticate token\n");
+					fmt.Printf("Reauthenticate token\n")
 				}
-				if (email != "" && password != "") {
+				if email != "" && password != "" {
 					pwa, _ = gotesla.GetPowerwallAuth(client, hostname, email, password)
 				}
 			}

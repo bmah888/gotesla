@@ -51,15 +51,15 @@ func main() {
 
 	// Get an authentication token
 	var pwa *gotesla.PowerwallAuth
-	if (email != "" && password != "") {
+	if email != "" && password != "" {
 		pwa, err = gotesla.GetPowerwallAuth(client, hostname, email, password)
 		if err != nil {
-			log.Fatalf("PowerwallAuth: %v\n", err);
+			log.Fatalf("PowerwallAuth: %v\n", err)
 		}
 	}
 
 	// Maybe print out some stuff from the token
-	if (verbose) {
+	if verbose {
 		if pwa != nil {
 			fmt.Printf("email %s\n", pwa.Email)
 			fmt.Printf("token %s\n", pwa.Token)
@@ -79,12 +79,12 @@ func main() {
 	fmt.Printf("System nominal full pack energy: %d\n", sysstat.NominalFullPackEnergy)
 	fmt.Printf("System nominal energy remaining: %d\n", sysstat.NominalEnergyRemaining)
 	fmt.Printf("System computed SOE: %d%%\n",
-		sysstat.NominalEnergyRemaining * 100 /
-		sysstat.NominalFullPackEnergy)
+		sysstat.NominalEnergyRemaining*100/
+			sysstat.NominalFullPackEnergy)
 
 	fmt.Printf("\n")
 	fmt.Printf("%3s %16s %16s %8s %10s %10s %10s\n", "#", "Part Number", "Serial Number", "Full", "Remaining", "Charged", "Discharged")
-	
+
 	var i int
 	var totalCharged, totalDischarged int
 	for i = 0; i < sysstat.AvailableBlocks; i++ {
